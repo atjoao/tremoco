@@ -14,15 +14,15 @@ func TestGroup(rg *gin.RouterGroup) {
 		ctx.JSON(200, "hello world")
 	})
 
-	// la pq eu consigo defenir o tamanho do range que quero
-	// eu preciso de limitar ainda a velocidade
-	// eu posso tentar usar o buffer de audio e sincronizarlos
-	// stream e sempre mais rapido tmb
-	// mas eu fico sem habilidades de seek eu acho 
+	/*
+	
+	com stream o firefox consegue imediatamente ouvir a musica
+	o que é bom pq se tiver com pouca rede a musica continua a dar a medida
+	a medida q carrega
 
-	// eu tenho de ver isto 
-
-	/* 
+	sim consigo fazer o mesmo com content-lenght e ranges
+	mas n me vou dar ao trabalho disso... 
+	
 	rg.GET("/stream", func(ctx *gin.Context) {
 		chanStream := make(chan []byte)
 		ctx.Header("Content-Type", "audio/mp3")
@@ -48,7 +48,17 @@ func TestGroup(rg *gin.RouterGroup) {
 	}) 
 	*/
 
-	rg.GET("/stream2", func(ctx *gin.Context) {
+	/*
+	uso api https://developer.mozilla.org/en-US/docs/Web/API/NetworkInformation
+	para caso que seje algum mobile data or smth
+
+	e passar para /stream
+
+	tmb n uso firefox (no tele) por isso fds ig  
+	posso usar essa api
+	*/
+
+	rg.GET("/stream", func(ctx *gin.Context) {
 		// de alguma maneira isto funciona...
 		ctx.Header("Content-Type", "audio/ogg")
 		ctx.Header("Content-Disposition", "inline; filename=audio.opus")
