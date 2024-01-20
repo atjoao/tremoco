@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Audio Player with Range Request</title>
+	</head>
+	<style>
+		body {
+			background-color: #212121;
+		}
+	</style>
+	<body>
+		<audio
+			controls
+			id="audioPlayer"
+			preload="none"
+			src="http://localhost:3000/test/audio/audio.opus"
+			range="bytes=0-51200"
+		>
+			Your browser does not support the audio element.
+		</audio>
+	</body>
+</html>
