@@ -8,8 +8,8 @@ import (
 )
 
 type video struct {
-	title string
-	videoId string
+	title        string
+	videoId      string
 	thumbnailUrl string
 }
 
@@ -18,12 +18,37 @@ func TestGroup(rg *gin.RouterGroup) {
 		ctx.JSON(200, "hello world")
 	})
 
-
 	rg.GET("/:id", func(ctx *gin.Context) {
-		id := ctx.Param("id");
+		id := ctx.Param("id")
 		ctx.JSON(200, gin.H{
 			"message": id,
 		})
+	})
+
+	rg.GET("/videoMeta", func(ctx *gin.Context) {
+		videoId := ctx.Query("videoId")
+		if len(videoId) <= 0 {
+			ctx.JSON(400, gin.H{
+				"status":  "MISSED_PARAMS",
+				"message": `no "videoId" query param or empty`,
+			})
+			return
+		}
+		metas, err := functions.VideoMeta(videoId)
+		if err != nil {
+			log.Printf("Error searching for videos: %v", err)
+			ctx.JSON(500, gin.H{
+				"status": "SERVER_ERROR",
+				"error":  "Internal Server Error",
+			})
+			return
+		}
+
+		ctx.JSON(200, gin.H{
+			"status": "OK",
+			"meta":   metas,
+		})
+
 	})
 
 	// TODO: build cache thing
@@ -31,20 +56,20 @@ func TestGroup(rg *gin.RouterGroup) {
 		query := ctx.Query("q")
 		if len(query) <= 0 {
 			ctx.JSON(400, gin.H{
-				"status": "MISSED_PARAMS",
-				"message": "no \"q\" query param or empty",
+				"status":  "MISSED_PARAMS",
+				"message": `no "q" query param or empty`,
 			})
-			return;
+			return
 		}
 
-		videos,err := functions.SearchVideo(query)
-		if err != nil{
+		videos, err := functions.SearchVideo(query)
+		if err != nil {
 			log.Printf("Error searching for videos: %v", err)
 			ctx.JSON(500, gin.H{
 				"status": "SERVER_ERROR",
-				"error": "Internal Server Error",
+				"error":  "Internal Server Error",
 			})
-			return;
+			return
 		}
 
 		ctx.JSON(200, gin.H{

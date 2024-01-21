@@ -1,49 +1,63 @@
-package main
+package functions
 
 import (
 	"fmt"
 	"io"
+	"music/server/utils"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
 )
 
-func main() {
-	
-	res, err := http.Get("https://youtube.com/watch?v=b8orB2dMUKQ")
-	if err != nil{	
-		fmt.Println(err)
+func VideoMeta(videoId string) ([]utils.VideoMeta, error) {
+	metas := make([]utils.VideoMeta, 0)
+	const ytUrl string = "https://www.youtube.com/watch"
+
+	parseUrl, err := url.Parse(ytUrl)
+
+	if err != nil {
+		return nil, err
+	}
+
+	values := parseUrl.Query()
+	values.Add("v", videoId)
+
+	parseUrl.RawQuery = values.Encode()
+
+	res, err := http.Get(parseUrl.String())
+	if err != nil {
+		return nil, err
 	}
 
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
-	if err != nil{
-		fmt.Println(err)
-
+	if err != nil {
+		return nil, err
 	}
+
 	//re := regexp.MustCompile(`"audioQuality":"([^"]*)".*?"url":"([^"]*)".*?"mimeType":"audio/webm; codecs=\\\"([^\\\"]*)`)
 	//re := regexp.MustCompile(`"audioQuality":"AUDIO_QUALITY_MEDIUM".*?"url":"([^"]*)".*?"mimeType":"audio/webm; codecs=\\\"([^\\\"]*)`)
 	re := regexp.MustCompile(`"audioQuality":"([^"]*)".*?"url":"([^"]*)".*?"mimeType":"(audio|video)/webm; codecs=\\\"([^\\\"]*)`)
-
 	matches := re.FindAllStringSubmatch(string(body), -1)
-
 	for _, match := range matches {
-		fmt.Println("---")
-
-		fmt.Println("quality", match[1])
-		fmt.Println("url - encoded", match[2])
-		encodedUrl, err:= url.QueryUnescape(match[2])
-		if err != nil{
+		encodedUrl, err := url.QueryUnescape(match[2])
+		if err != nil {
 			fmt.Println(err)
 		}
-		
-		
-		fmt.Println(strings.Replace(encodedUrl, "\\u0026","&", -1 ))
 
-		fmt.Println("mimetype", match[3])
-		fmt.Println("codec", match[4])
+		encodedUrl = strings.Replace(encodedUrl, "\\u0026", "&", -1)
+
+		videoMeta := &utils.VideoMeta{
+			AudioQuality: match[1],
+			StreamUrl:    encodedUrl,
+			MimeType:     match[3],
+			VideoCodec:   match[4],
+		}
+
+		metas = append(metas, *videoMeta)
+
 	}
-
+	return metas, nil
 }
