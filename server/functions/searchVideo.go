@@ -8,8 +8,6 @@ import (
 	"regexp"
 )
 
-
-
 func SearchVideo(name string) ([]structs.Video, error){ 
 	allVideos := make([]structs.Video, 0)
 	ytUrl := "https://www.youtube.com/results"
@@ -46,7 +44,7 @@ func SearchVideo(name string) ([]structs.Video, error){
 		videoData := &structs.Video{
 			Id:       match[1],
 			Title:     match[2],
-			ImageUrl: "https://i.ytimg.com/vi/"+ match[1] +"/hq720.jpg",
+			ImageUrl: "https://i.ytimg.com/vi/"+ match[1] +"/hqdefault.jpg",
 		}
 
 		allVideos = append(allVideos, *videoData)
