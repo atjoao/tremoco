@@ -2,11 +2,9 @@
 
 # coisas para aprender
 
-- dividir musica
-- conectar apis
 - database (mysql)
-- transmitir a musica junto
 - diferentes qualidades de audio?
+- parsing ig
 
 # isto ta completamente diferente do planeado por isso...
 

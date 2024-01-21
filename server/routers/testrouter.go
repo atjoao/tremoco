@@ -7,12 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type video struct {
-	title        string
-	videoId      string
-	thumbnailUrl string
-}
-
 func TestGroup(rg *gin.RouterGroup) {
 	rg.GET("/a", func(ctx *gin.Context) {
 		ctx.JSON(200, "hello world")
@@ -44,7 +38,7 @@ func TestGroup(rg *gin.RouterGroup) {
 			return
 		}
 
-		ctx.JSON(200, gin.H{
+		ctx.PureJSON(200, gin.H{
 			"status": "OK",
 			"meta":   metas,
 		})
