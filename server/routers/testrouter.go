@@ -20,11 +20,11 @@ func TestGroup(rg *gin.RouterGroup) {
 	})
 
 	rg.GET("/videoMeta", func(ctx *gin.Context) {
-		videoId := ctx.Query("videoId")
+		videoId := ctx.Query("id")
 		if len(videoId) <= 0 {
 			ctx.JSON(400, gin.H{
 				"status":  "MISSED_PARAMS",
-				"message": `no "videoId" query param or empty`,
+				"message": `no "id" query param or empty`,
 			})
 			return
 		}
@@ -34,6 +34,13 @@ func TestGroup(rg *gin.RouterGroup) {
 			ctx.JSON(500, gin.H{
 				"status": "SERVER_ERROR",
 				"error":  "Internal Server Error",
+			})
+			return
+		}
+
+		if len(metas) == 0 {
+			ctx.JSON(404, gin.H{
+				"status": "NOTHING_FOUND",
 			})
 			return
 		}
@@ -62,6 +69,13 @@ func TestGroup(rg *gin.RouterGroup) {
 			ctx.JSON(500, gin.H{
 				"status": "SERVER_ERROR",
 				"error":  "Internal Server Error",
+			})
+			return
+		}
+
+		if len(videos) == 0 {
+			ctx.JSON(404, gin.H{
+				"status": "NOTHING_FOUND",
 			})
 			return
 		}
