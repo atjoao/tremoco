@@ -37,8 +37,6 @@ func VideoMeta(videoId string) ([]utils.VideoMeta, error) {
 		return nil, err
 	}
 
-	//re := regexp.MustCompile(`"audioQuality":"([^"]*)".*?"url":"([^"]*)".*?"mimeType":"audio/webm; codecs=\\\"([^\\\"]*)`)
-	//re := regexp.MustCompile(`"audioQuality":"AUDIO_QUALITY_MEDIUM".*?"url":"([^"]*)".*?"mimeType":"audio/webm; codecs=\\\"([^\\\"]*)`)
 	ytRe := regexp.MustCompile(`"audioQuality":"([^"]*)".*?"url":"([^"]*)".*?"mimeType":"(audio|video)/webm; codecs=\\\"([^\\\"]*)`)
 	findsig := regexp.MustCompile(`^[sS=]{2}`)
 
@@ -47,7 +45,7 @@ func VideoMeta(videoId string) ([]utils.VideoMeta, error) {
 	for _, match := range matches {
 		// should i just move to piped
 		if findsig.MatchString(match[2]){
-			match[2] = "sig url > "+match[2]
+			match[2] = "sig url > "+ match[2]
 		} else {
 			encodedUrl, err := url.QueryUnescape(match[2])
 			if err != nil {
