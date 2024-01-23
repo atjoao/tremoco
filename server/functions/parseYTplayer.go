@@ -48,7 +48,7 @@ func ParseYTPlayer() {
 	getFunction := scriptRegex.FindStringSubmatch(playerScript)
 	fmt.Println("function dec:", getFunction[0])
 
-	reFunctionName := regexp.MustCompile(`(?m)^.*a=a\.split\(""\);(.{3}).*$`)
+	reFunctionName := regexp.MustCompile(`(?m)^.*a=a\.split\(""\);([^\.]{1,3}).*$`)
 	getFunctionName := reFunctionName.FindStringSubmatch(playerScript)
 	fmt.Println("function name:", getFunctionName[1])
 
