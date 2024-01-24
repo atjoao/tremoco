@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func ParseYTPlayer() {
+func ParseYTPlayer(videoid string) {
 	response, err := http.Get("https://www.youtube.com/iframe_api")
 	if err != nil {
 		panic(err)
@@ -45,7 +45,6 @@ func ParseYTPlayer() {
 	playerScript := string(playerScriptBytes)
 	playerScript = strings.ReplaceAll(playerScript, "\n", "")
 
-
 	scriptRegex := regexp.MustCompile(`(?:;)([^=]+=function\([^)]*\)\{[^}]*?a=a\.split\(""\).{0,130})(?:;)`)
 	getFunction := scriptRegex.FindStringSubmatch(playerScript)
 	fmt.Println("function dec", getFunction[1])
@@ -66,24 +65,24 @@ func ParseYTPlayer() {
 	fmt.Println(getSignatureStamp[1])
 
 	/*
-	---- POST REQUEST
-	{
-		"videoId": "VIDEOID",
-		"context": {
-			"client": {
-				"clientName": "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
-				clientVersion": "2.0"
+		---- POST REQUEST - https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8
+		{
+			"videoId": "VIDEOID",
+			"context": {
+				"client": {
+					"clientName": "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
+					clientVersion": "2.0"
+				},
+				"thirdParty": {
+				"	embedUrl": "https://www.youtube.com"
+				}
 			},
-			"thirdParty": {
-			"	embedUrl": "https://www.youtube.com"
-			}
-		},
-		"playbackContext": {
-			"contentPlaybackContext": {
-				"signatureTimestamp": "getSignatureStamp[1]"
+			"playbackContext": {
+				"contentPlaybackContext": {
+					"signatureTimestamp": "getSignatureStamp[1]"
+				}
 			}
 		}
-	}
-	
+
 	*/
 }
