@@ -37,20 +37,36 @@ func VideoMeta(videoId string) ([]utils.VideoMeta, error) {
 		return nil, err
 	}
 
-	ytRe := regexp.MustCompile(`"audioQuality":"([^"]*)".*?"url":"([^"]*)".*?"mimeType":"(audio|video)/webm; codecs=\\\"([^\\\"]*)`)
+	// refazer video meta todo ig
+
+	// 1. fazer post request com video id
+	// 2. encontrar se link tem signatureCipher ou url
+	// 3. se url dar o link normal deixo estar
+	// 4. signaturecipher -> post request com getSignatureStamp -> obeter link -> desencriptar link -> mostrar link trocado. 
+	// como? ent troco a lista de metas em vez de deixar de fazer append a videoMeta retorno outro com o link normal 
+	// alias match[2] deve de ajudar nisso...
+
+	ytRe := regexp.MustCompile(`"audioQuality":"([^"]*)".*?"(?:signatureCipher|url)":"([^"]*)".*?"mimeType":"(audio|video)/webm; codecs=\\\"([^\\\"]*)`)
 	findsig := regexp.MustCompile(`^[sS=]{2}`)
 
 	matches := ytRe.FindAllStringSubmatch(string(body), -1)
 
+	fmt.Println(matches)
+
 	for _, match := range matches {
 		// should i just move to piped
+
+		encodedUrl, err := url.QueryUnescape(match[2])
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		match[2] = strings.Replace(encodedUrl, "\\u0026", "&", -1)
+
 		if findsig.MatchString(match[2]){
+
 			match[2] = "sig url > "+ match[2]
 		} else {
-			encodedUrl, err := url.QueryUnescape(match[2])
-			if err != nil {
-				fmt.Println(err)
-			}
 
 			match[2] = strings.Replace(encodedUrl, "\\u0026", "&", -1)
 		}

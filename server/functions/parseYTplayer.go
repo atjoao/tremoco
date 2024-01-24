@@ -30,7 +30,7 @@ func ParseYTPlayer() {
 	matchPlayer := regexPlayerID.FindStringSubmatch(scriptURL)
 	fmt.Println(matchPlayer[1])
 
-	playerURL := fmt.Sprintf("https://www.youtube.com/s/player/%s/player_ias.vflset/en_US/base.js", matchPlayer[1])
+	playerURL := fmt.Sprintf("https://www.youtube.com/s/player/%s/player_ias.vflset/en_US/base.js", "b31b88f2")
 	fmt.Println(playerURL)
 	playerScriptResponse, err := http.Get(playerURL)
 	if err != nil {
@@ -43,17 +43,20 @@ func ParseYTPlayer() {
 		panic(err)
 	}
 	playerScript := string(playerScriptBytes)
+	playerScript = strings.ReplaceAll(playerScript, "\n", "")
 
-	scriptRegex := regexp.MustCompile(`(?m)^(.*a=a\.split\(\"\"\);.*)$`)
+
+	scriptRegex := regexp.MustCompile(`(?:;)([^=]+=function\([^)]*\)\{[^}]*?a=a\.split\(""\).{0,130})(?:;)`)
 	getFunction := scriptRegex.FindStringSubmatch(playerScript)
-	fmt.Println("function dec:", getFunction[0])
+	fmt.Println("function dec", getFunction[1])
 
-	reFunctionName := regexp.MustCompile(`(?m)^.*a=a\.split\(""\);([^\.]{1,3}).*$`)
+	reFunctionName := regexp.MustCompile(`^.*a=a\.split\(""\);([^\.]{1,3}).*$`)
 	getFunctionName := reFunctionName.FindStringSubmatch(playerScript)
 	fmt.Println("function name:", getFunctionName[1])
 
-	var reFunctionVarStr string = "var\\s+fn\\s*=\\s*{[^}]*}"
+	var reFunctionVarStr string = "var\\s+fn\\s*=\\s*{[^}].{0,200}};"
 	replacedStr := strings.ReplaceAll(reFunctionVarStr, "fn", getFunctionName[1])
+	fmt.Println(replacedStr)
 	reFunctionVar := regexp.MustCompile(replacedStr)
 	getFunctionVar := reFunctionVar.FindString(playerScript)
 	fmt.Println(getFunctionVar)
@@ -61,4 +64,26 @@ func ParseYTPlayer() {
 	reSignatureStamp := regexp.MustCompile(`signatureTimestamp:(\d+)`)
 	getSignatureStamp := reSignatureStamp.FindStringSubmatch(playerScript)
 	fmt.Println(getSignatureStamp[1])
+
+	/*
+	---- POST REQUEST
+	{
+		"videoId": "VIDEOID",
+		"context": {
+			"client": {
+				"clientName": "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
+				clientVersion": "2.0"
+			},
+			"thirdParty": {
+			"	embedUrl": "https://www.youtube.com"
+			}
+		},
+		"playbackContext": {
+			"contentPlaybackContext": {
+				"signatureTimestamp": "getSignatureStamp[1]"
+			}
+		}
+	}
+	
+	*/
 }
