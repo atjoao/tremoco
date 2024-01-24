@@ -51,8 +51,6 @@ func VideoMeta(videoId string) ([]utils.VideoMeta, error) {
 
 	matches := ytRe.FindAllStringSubmatch(string(body), -1)
 
-	fmt.Println(matches)
-
 	for _, match := range matches {
 		// should i just move to piped
 
