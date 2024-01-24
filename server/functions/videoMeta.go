@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func VideoMeta(videoId string) ([]utils.VideoMeta, error) {
+func VideoMeta(videoId string, includeVideo bool) ([]utils.VideoMeta, error) {
 	metas := make([]utils.VideoMeta, 0)
 	const ytUrl string = "https://www.youtube.com/watch"
 
@@ -62,13 +62,14 @@ func VideoMeta(videoId string) ([]utils.VideoMeta, error) {
 		match[2] = strings.Replace(encodedUrl, "\\u0026", "&", -1)
 
 		if findsig.MatchString(match[2]){
-
 			match[2] = "sig url > "+ match[2]
 		} else {
-
 			match[2] = strings.Replace(encodedUrl, "\\u0026", "&", -1)
 		}
 
+		if !includeVideo && match[3] == "video"{
+			continue
+		}
 
 		videoMeta := &utils.VideoMeta{
 			AudioQuality: match[1],

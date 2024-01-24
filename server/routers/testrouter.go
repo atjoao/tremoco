@@ -21,6 +21,15 @@ func TestGroup(rg *gin.RouterGroup) {
 
 	rg.GET("/videoMeta", func(ctx *gin.Context) {
 		videoId := ctx.Query("id")
+		includeVideo := ctx.Query("videos")
+		var includeVideoBool bool
+
+		if includeVideo == "true"{
+			includeVideoBool = true
+		} else {
+			includeVideoBool = false
+		}
+
 		if len(videoId) <= 0 {
 			ctx.JSON(400, gin.H{
 				"status":  "MISSED_PARAMS",
@@ -28,7 +37,7 @@ func TestGroup(rg *gin.RouterGroup) {
 			})
 			return
 		}
-		metas, err := functions.VideoMeta(videoId)
+		metas, err := functions.VideoMeta(videoId, includeVideoBool)
 		if err != nil {
 			log.Printf("Error searching for videos: %v", err)
 			ctx.JSON(500, gin.H{
