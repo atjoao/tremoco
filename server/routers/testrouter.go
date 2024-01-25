@@ -19,11 +19,12 @@ func TestGroup(rg *gin.RouterGroup) {
 		})
 	})
 
-	rg.GET("/videoMeta", func(ctx *gin.Context) {
+	rg.GET("/video", func(ctx *gin.Context) {
 		videoId := ctx.Query("id")
 		includeVideo := ctx.Query("videos")
-		var includeVideoBool bool
+		complete := ctx.Query("complete")
 
+		var includeVideoBool bool
 		if includeVideo == "true"{
 			includeVideoBool = true
 		} else {
@@ -37,7 +38,14 @@ func TestGroup(rg *gin.RouterGroup) {
 			})
 			return
 		}
-		metas, err := functions.VideoMeta(videoId, includeVideoBool)
+		response, metas, err := functions.VideoMeta(videoId, includeVideoBool)
+		if complete == "true" {
+			ctx.PureJSON(200, gin.H{
+				"status": "OK",
+				"data": response,
+			})
+			return
+		}
 		if err != nil {
 			log.Printf("Error searching for videos: %v", err)
 			ctx.JSON(500, gin.H{
@@ -56,7 +64,9 @@ func TestGroup(rg *gin.RouterGroup) {
 
 		ctx.PureJSON(200, gin.H{
 			"status": "OK",
-			"meta":   metas,
+			"data": metas,
+			"title": response.VideoDetails.Title,
+			"author": response.VideoDetails.Author,
 		})
 
 	})
