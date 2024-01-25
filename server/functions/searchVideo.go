@@ -33,7 +33,6 @@ func SearchVideo(name string) ([]utils.VideoSearch, error) {
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
-
 	}
 
 	// thx

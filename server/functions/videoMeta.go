@@ -1,85 +1,55 @@
 package functions
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"music/server/utils"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strings"
 )
 
 func VideoMeta(videoId string, includeVideo bool) ([]utils.VideoMeta, error) {
 	metas := make([]utils.VideoMeta, 0)
-	const ytUrl string = "https://www.youtube.com/watch"
-
-	parseUrl, err := url.Parse(ytUrl)
-
+	const ytUrl string = "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+	var jsonStr = fmt.Sprintf(`{"videoId": "%s","context": {"client": {"clientName": "ANDROID_TESTSUITE","clientVersion": "1.9","androidSdkVersion": 30,"hl": "en","gl": "US","utcOffsetMinutes": 0}}}`, videoId)
+	getVideoInfo, err := http.Post(ytUrl, "application/json", strings.NewReader(jsonStr))
 	if err != nil {
 		return nil, err
 	}
 
-	values := parseUrl.Query()
-	values.Add("v", videoId)
+	defer getVideoInfo.Body.Close()
 
-	parseUrl.RawQuery = values.Encode()
+	getVideoBody, err := io.ReadAll(getVideoInfo.Body)
+	if err != nil{
+		return nil, err
+	}
 
-	res, err := http.Get(parseUrl.String())
+	var response utils.VideoPlaybackResponse 
+	err = json.Unmarshal(getVideoBody, &response)
 	if err != nil {
 		return nil, err
 	}
 
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	// refazer video meta todo ig
-
-	// 1. fazer post request com video id
-	// 2. encontrar se link tem signatureCipher ou url
-	// 3. se url dar o link normal deixo estar
-	// 4. signaturecipher -> post request com getSignatureStamp -> obeter link -> desencriptar link -> mostrar link trocado. 
-	// como? ent troco a lista de metas em vez de deixar de fazer append a videoMeta retorno outro com o link normal 
-	// alias match[2] deve de ajudar nisso...
-
-	ytRe := regexp.MustCompile(`"audioQuality":"([^"]*)".*?"(?:signatureCipher|url)":"([^"]*)".*?"mimeType":"(audio|video)/webm; codecs=\\\"([^\\\"]*)`)
-	findsig := regexp.MustCompile(`^[sS=]{2}`)
-
-	matches := ytRe.FindAllStringSubmatch(string(body), -1)
-
-	for _, match := range matches {
-		// should i just move to piped
-
-		encodedUrl, err := url.QueryUnescape(match[2])
+	for _, data := range response.StreamingData.AdaptiveFormats {
+		encodedUrl, err := url.QueryUnescape(data.URL)
 		if err != nil {
 			fmt.Println(err)
 		}
 
-		match[2] = strings.Replace(encodedUrl, "\\u0026", "&", -1)
-
-		if findsig.MatchString(match[2]){
-			match[2] = "sig url > "+ match[2]
-		} else {
-			match[2] = strings.Replace(encodedUrl, "\\u0026", "&", -1)
-		}
-
-		if !includeVideo && match[3] == "video"{
+		if !includeVideo && data.AudioQuality == ""{
 			continue
 		}
-
+		
 		videoMeta := &utils.VideoMeta{
-			AudioQuality: match[1],
-			StreamUrl:    match[2],
-			MimeType:     match[3],
-			VideoCodec:   match[4],
+			AudioQuality: data.AudioQuality,
+			StreamUrl:    encodedUrl,
+			MimeType:     data.MimeType,
 		}
 
 		metas = append(metas, *videoMeta)
-
 	}
+
 	return metas, nil
 }

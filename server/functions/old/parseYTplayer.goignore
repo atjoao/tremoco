@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func ParseYTPlayer(videoid string) {
+func ParseYTPlayer(videoid string) (string,error){
 	response, err := http.Get("https://www.youtube.com/iframe_api")
 	if err != nil {
 		panic(err)
@@ -64,25 +64,23 @@ func ParseYTPlayer(videoid string) {
 	getSignatureStamp := reSignatureStamp.FindStringSubmatch(playerScript)
 	fmt.Println(getSignatureStamp[1])
 
-	/*
-		---- POST REQUEST - https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8
-		{
-			"videoId": "VIDEOID",
-			"context": {
-				"client": {
-					"clientName": "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
-					clientVersion": "2.0"
-				},
-				"thirdParty": {
-				"	embedUrl": "https://www.youtube.com"
-				}
-			},
-			"playbackContext": {
-				"contentPlaybackContext": {
-					"signatureTimestamp": "getSignatureStamp[1]"
-				}
-			}
-		}
+	// im too lazy to build a js parser...
+	// although the structure is the same for every script i think
 
-	*/
+	var jsonStr = fmt.Sprintf(`{"videoId": "%s","context": {"client": {"clientName": "TVHTML5_SIMPLY_EMBEDDED_PLAYER","clientVersion": "2.0"},"thirdParty": {"embedUrl": "https://www.youtube.com"}},"playbackContext": {"contentPlaybackContext": {"signatureTimestamp": "%s"}}}`, videoid, getSignatureStamp[1])
+
+	getStreams,err := http.Post("https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8", "application/json", strings.NewReader(jsonStr))
+	if err != nil{
+		return "", err
+	}
+
+	defer getStreams.Body.Close()
+
+	getStreamsBody, err := io.ReadAll(getStreams.Body)
+	if err != nil{
+		return "", err
+	}
+	fmt.Println(string(jsonStr), string(getStreamsBody))
+
+	return "", nil
 }

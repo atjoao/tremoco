@@ -94,7 +94,4 @@ func TestGroup(rg *gin.RouterGroup) {
 			"videos": videos,
 		})
 	})
-
-	// entendi como usar isto ig
-	rg.StaticFile("/audio", "./audio/audio.opus")
 }
