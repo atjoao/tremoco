@@ -10,8 +10,8 @@ import (
 	"strings"
 )
 
-func VideoMeta(videoId string, includeVideo bool) (*utils.VideoPlaybackResponse, []utils.VideoMeta, error) {
-    metas := make([]utils.VideoMeta, 0)
+func VideoMeta(videoId string, includeVideo bool) (*utils.VideoPlaybackResponse, []utils.Streams, error) {
+    metas := make([]utils.Streams, 0)
     var response utils.VideoPlaybackResponse
 
     inCache, getCacheValue := utils.GetFromCache(videoId)
@@ -50,7 +50,7 @@ func VideoMeta(videoId string, includeVideo bool) (*utils.VideoPlaybackResponse,
 			continue
 		}
 
-		videoMeta := &utils.VideoMeta{
+		videoMeta := &utils.Streams{
 			AudioQuality: data.AudioQuality,
 			StreamUrl:    encodedUrl,
 			MimeType:     data.MimeType,

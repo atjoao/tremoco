@@ -3,6 +3,7 @@ package routers
 import (
 	"log"
 	"music/server/functions"
+	structs "music/server/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -65,11 +66,13 @@ func TestGroup(rg *gin.RouterGroup) {
 
 		ctx.PureJSON(200, gin.H{
 			"status": "OK",
-			"data": gin.H{
-				"title":  response.VideoDetails.Title,
-				"author": response.VideoDetails.Author,
-				"thumbnails": response.VideoDetails.Thumbnail.Thumbnails,
-				"streams": metas,
+			"data": &structs.VideoMeta{
+				VideoId: response.VideoDetails.VideoId,
+				Title: response.VideoDetails.Title,
+				Author: response.VideoDetails.Author,
+				Thumbnails: response.VideoDetails.Thumbnail.Thumbnails,
+				Duration: response.VideoDetails.LengthSeconds,
+				Streams: metas,
 			},
 		})
 

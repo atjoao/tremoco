@@ -1,5 +1,17 @@
 package utils
 
+type User struct {
+	Username  string
+	Password  string
+	Playlists []Playlist
+}
+
+type Playlist struct {
+	PlaylistId   int
+	PlaylistName string
+	MusicList    []VideoMeta
+}
+
 type VideoSearch struct {
 	Id       string `json:"id"`
 	Title    string `json:"title"`
@@ -7,9 +19,24 @@ type VideoSearch struct {
 }
 
 type VideoMeta struct {
+	VideoId    string      `json:"videoid"`
+	Title      string      `json:"title"`
+	Author     string      `json:"author"`
+	Duration   string      `json:"duration"`
+	Thumbnails []Thumbnail `json:"thumbnails"`
+	Streams    []Streams   `json:"streams"`
+}
+
+type Streams struct {
 	AudioQuality string `json:"audioQuality"`
 	MimeType     string `json:"mimeType"`
 	StreamUrl    string `json:"streamUrl"`
+}
+
+type Thumbnail struct {
+	URL    string `json:"url"`
+	Width  int    `json:"width"`
+	Height int    `json:"height"`
 }
 
 type VideoPlaybackResponse struct {
@@ -81,11 +108,7 @@ type VideoPlaybackResponse struct {
 		ShortDescription string   `json:"shortDescription"`
 		IsCrawlable      bool     `json:"isCrawlable"`
 		Thumbnail        struct {
-			Thumbnails []struct {
-				URL    string `json:"url"`
-				Width  int    `json:"width"`
-				Height int    `json:"height"`
-			} `json:"thumbnails"`
+			Thumbnails []Thumbnail `json:"thumbnails"`
 		} `json:"thumbnail"`
 		AllowRatings      bool   `json:"allowRatings"`
 		ViewCount         string `json:"viewCount"`

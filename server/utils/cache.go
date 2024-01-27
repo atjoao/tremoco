@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var cache   = make(map[string]VideoPlaybackResponse)
+var cache = make(map[string]VideoPlaybackResponse)
 
 func CreateCache(videoData VideoPlaybackResponse) bool {
 	_, valueInCache := cache[videoData.VideoDetails.VideoId]
