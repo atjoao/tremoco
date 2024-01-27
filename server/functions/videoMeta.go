@@ -12,25 +12,32 @@ import (
 
 func VideoMeta(videoId string, includeVideo bool) (*utils.VideoPlaybackResponse, []utils.VideoMeta, error) {
     metas := make([]utils.VideoMeta, 0)
-    const ytUrl string = "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
-    var jsonStr = fmt.Sprintf(`{"videoId": "%s","context": {"client": {"clientName": "ANDROID_TESTSUITE","clientVersion": "1.9","androidSdkVersion": 30,"hl": "en","gl": "US","utcOffsetMinutes": 0}}}`, videoId)
-
-    getVideoInfo, err := http.Post(ytUrl, "application/json", strings.NewReader(jsonStr))
-    if err != nil {
-        return nil, nil, err
-    }
-
-    defer getVideoInfo.Body.Close()
-
-    getVideoBody, err := io.ReadAll(getVideoInfo.Body)
-    if err != nil {
-        return nil, nil, err
-    }
-
     var response utils.VideoPlaybackResponse
-    err = json.Unmarshal(getVideoBody, &response)
-    if err != nil {
-        return nil, nil, err
+
+    inCache, getCacheValue := utils.GetFromCache(videoId)
+    if !inCache{
+        const ytUrl string = "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+        var jsonStr = fmt.Sprintf(`{"videoId": "%s","context": {"client": {"clientName": "ANDROID_TESTSUITE","clientVersion": "1.9","androidSdkVersion": 30,"hl": "en","gl": "US","utcOffsetMinutes": 0}}}`, videoId)
+
+        getVideoInfo, err := http.Post(ytUrl, "application/json", strings.NewReader(jsonStr))
+        if err != nil {
+            return nil, nil, err
+        }
+
+        defer getVideoInfo.Body.Close()
+
+        getVideoBody, err := io.ReadAll(getVideoInfo.Body)
+        if err != nil {
+            return nil, nil, err
+        }
+
+        err = json.Unmarshal(getVideoBody, &response)
+        utils.CreateCache(response)
+        if err != nil {
+            return nil, nil, err
+        }
+    } else {
+        response = *getCacheValue
     }
 
     for _, data := range response.StreamingData.AdaptiveFormats {

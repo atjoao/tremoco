@@ -2,15 +2,15 @@ package functions
 
 import (
 	"io"
-	"music/server/utils"
+	structs "music/server/utils"
 	"net/http"
 	"net/url"
 	"regexp"
 )
 
-func SearchVideo(name string) ([]utils.VideoSearch, error) {
+func SearchVideo(name string) ([]structs.VideoSearch, error) {
 	const ytUrl string = "https://www.youtube.com/results"
-	allVideos := make([]utils.VideoSearch, 0)
+	allVideos := make([]structs.VideoSearch, 0)
 
 	parseUrl, err := url.Parse(ytUrl)
 
@@ -40,7 +40,7 @@ func SearchVideo(name string) ([]utils.VideoSearch, error) {
 	matches := re.FindAllStringSubmatch(string(body), -1)
 
 	for _, match := range matches {
-		videoData := &utils.VideoSearch{
+		videoData := &structs.VideoSearch{
 			Id:       match[1],
 			Title:    match[2],
 			ImageUrl: "https://i.ytimg.com/vi/" + match[1] + "/hqdefault.jpg",

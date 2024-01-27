@@ -39,6 +39,7 @@ func TestGroup(rg *gin.RouterGroup) {
 			return
 		}
 		response, metas, err := functions.VideoMeta(videoId, includeVideoBool)
+		
 		if complete == "true" {
 			ctx.PureJSON(200, gin.H{
 				"status": "OK",
@@ -64,9 +65,12 @@ func TestGroup(rg *gin.RouterGroup) {
 
 		ctx.PureJSON(200, gin.H{
 			"status": "OK",
-			"data": metas,
-			"title": response.VideoDetails.Title,
-			"author": response.VideoDetails.Author,
+			"data": gin.H{
+				"title":  response.VideoDetails.Title,
+				"author": response.VideoDetails.Author,
+				"thumbnails": response.VideoDetails.Thumbnail.Thumbnails,
+				"streams": metas,
+			},
 		})
 
 	})
