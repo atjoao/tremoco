@@ -40,24 +40,24 @@ func VideoMeta(videoId string, includeVideo bool) (*utils.VideoPlaybackResponse,
         response = *getCacheValue
     }
 
-    for _, data := range response.StreamingData.AdaptiveFormats {
-        encodedUrl, err := url.QueryUnescape(data.URL)
-        if err != nil {
-            fmt.Println(err)
-        }
+	for _, data := range response.StreamingData.AdaptiveFormats {
+		encodedUrl, err := url.QueryUnescape(data.URL)
+		if err != nil {
+			return nil, nil, err
+		}
 
-        if !includeVideo && data.AudioQuality == "" {
-            continue
-        }
+		if !includeVideo && data.AudioQuality == "" {
+			continue
+		}
 
-        videoMeta := &utils.VideoMeta{
-            AudioQuality: data.AudioQuality,
-            StreamUrl:    encodedUrl,
-            MimeType:     data.MimeType,
-        }
+		videoMeta := &utils.VideoMeta{
+			AudioQuality: data.AudioQuality,
+			StreamUrl:    encodedUrl,
+			MimeType:     data.MimeType,
+		}
 
-        metas = append(metas, *videoMeta)
-    }
+		metas = append(metas, *videoMeta)
+	}
 
-    return &response, metas, nil
+	return &response, metas, nil
 }
