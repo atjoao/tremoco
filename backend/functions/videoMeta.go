@@ -14,7 +14,7 @@ func VideoMeta(videoId string, includeVideo bool) (*utils.VideoPlaybackResponse,
     metas := make([]utils.Streams, 0)
     var response utils.VideoPlaybackResponse
 
-    inCache, getCacheValue := utils.GetFromCache(videoId)
+    inCache, getCacheValue := utils.StreamGetFromCache(videoId)
     if !inCache{
         const ytUrl string = "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
         var jsonStr = fmt.Sprintf(`{"videoId": "%s","context": {"client": {"clientName": "ANDROID_TESTSUITE","clientVersion": "1.9","androidSdkVersion": 30,"hl": "en","gl": "US","utcOffsetMinutes": 0}}}`, videoId)
@@ -32,7 +32,7 @@ func VideoMeta(videoId string, includeVideo bool) (*utils.VideoPlaybackResponse,
         }
 
         err = json.Unmarshal(getVideoBody, &response)
-        utils.CreateCache(response)
+        utils.StreamCreateCache(response)
         if err != nil {
             return nil, nil, err
         }
