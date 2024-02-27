@@ -11,32 +11,36 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var Db *sql.DB = nil;
+
 func engine() *gin.Engine {
 	app := gin.New()
 	
-	db, err := sql.Open("postgres", "postgres://localdb@localhost:5432/music?sslmode=disable")
-	if err != nil {
-		log.Panicln("Error connecting to postgres database > ", err)
-	} 
-
-	store, err := postgres.NewStore(db, []byte(env.SECRET_KEY))
+	store, err := postgres.NewStore(Db, []byte(env.SECRET_KEY))
 	if err != nil {
 		log.Panicln("Error creating session store > ", err)
 	}
 
 	app.Use(sessions.Sessions("sessions", store))
 
-	video := app.Group("/api")
+	// api routes
+	api := app.Group("/api")
 	{
-		video.GET("/search", routers.SearchVideos)
-		video.GET("/video", routers.VideoDataStream)
+		api.GET("/search", routers.SearchVideos)
+		api.GET("/video", routers.VideoDataStream)
 	}
 	
 	return app
 }
 
 func main() {
+	var err error
+	Db, err = sql.Open("postgres", "postgres://localdb@localhost:5432/music?sslmode=disable")
+	if err != nil {
+		log.Panicln("Error connecting to postgres database > ", err)
+	}
 	
+	log.Println("Connected to postgres database")
 	app := engine()
 	if err := app.Run(":3000"); err != nil {
 		log.Fatal("Unable to start:", err)
