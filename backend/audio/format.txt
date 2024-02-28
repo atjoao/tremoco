@@ -1,4 +1,4 @@
 Format
 /albumname
--- > image (.webp/.png/.jpg)
+-- > cover.(webp/png/jpg)
 -- > name (filename).(mp3/opus/webm/flac)

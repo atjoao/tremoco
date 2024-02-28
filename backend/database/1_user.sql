@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS Users(
-    id INT AUTO_INCREMENT,
+    id serial,
     username VARCHAR(30) NOT NULL,
     passwordHash VARCHAR(255) NOT NULL,
 

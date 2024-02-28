@@ -1,19 +1,18 @@
 CREATE TABLE IF NOT EXISTS Playlists(
-    id INT AUTO_INCREMENT,
+    id serial,
     userId INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(userId) REFERENCES Users(id),
-
-    PRIMARY KEY (id),
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS Music(
-    id VARCHAR(30) NOT NULL,
+    id VARCHAR(30) NOT NULL, -- local_<id>
     title VARCHAR(255) NOT NULL,
     author VARCHAR(255) NOT NULL,
     duration INT NOT NULL,
-    PRIMARY KEY(id),
+    PRIMARY KEY(id)
 );
 
 CREATE TABLE IF NOT EXISTS Playlist_Music(
@@ -23,4 +22,3 @@ CREATE TABLE IF NOT EXISTS Playlist_Music(
     FOREIGN KEY (music_id) REFERENCES Music(id),
     PRIMARY KEY (playlist_id, music_id)
 );
--- nao guardar stream links pois espira a cada 6 horas
