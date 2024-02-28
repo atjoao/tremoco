@@ -1,6 +1,7 @@
 package env
 
 const SECRET_KEY = "hdfkjshfopasdpo"
+const POSTGRES_URI = "postgres://localdb@localhost:5432/music?sslmode=disable&"
 
 // oh well this is a secret key
 // i forgor to .gitignore this file

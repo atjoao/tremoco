@@ -21,4 +21,4 @@ CREATE TABLE IF NOT EXISTS Playlist_Music(
     FOREIGN KEY (playlist_id) REFERENCES Playlists(id),
     FOREIGN KEY (music_id) REFERENCES Music(id),
     PRIMARY KEY (playlist_id, music_id)
-);
+)

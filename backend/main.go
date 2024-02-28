@@ -40,7 +40,7 @@ func engine() *gin.Engine {
 func main() {
 
 	var err error
-	dbConn, err = sql.Open("postgres", "postgres://localdb@localhost:5432/music?sslmode=disable&")
+	dbConn, err = sql.Open("postgres", env.POSTGRES_URI)
 	if err != nil {
 		log.Panicln("Error connecting to postgres database > ", err)
 	}
@@ -61,8 +61,8 @@ func main() {
 
 		var sqlStatement []string = strings.Split(string(sql), ";")
 		for _, statement := range sqlStatement {
-			fmt.Println(statement+";")
-			result, err := dbConn.Exec(statement+";")
+			fmt.Println(statement)
+			result, err := dbConn.Exec(statement)
 			if err != nil {
 				log.Panicln("Error on",file.Name(),"command > ", err)
 			}
