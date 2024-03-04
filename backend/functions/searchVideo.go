@@ -49,6 +49,8 @@ func SearchVideo(name string) ([]structs.VideoSearch, error) {
 		allVideos = append(allVideos, *videoData)
 	}
 
+	// remember to append database videos
+
 	return allVideos, nil
 
 }

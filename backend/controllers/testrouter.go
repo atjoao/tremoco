@@ -1,4 +1,4 @@
-package routers
+package controllers
 
 import (
 	"log"

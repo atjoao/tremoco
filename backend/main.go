@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"music/server/controllers"
 	"music/server/env"
 	"music/server/functions"
-	"music/server/routers"
 	"os"
 	"strings"
 
@@ -30,8 +30,8 @@ func engine() *gin.Engine {
 	// api routes
 	api := app.Group("/api")
 	{
-		api.GET("/search", routers.SearchVideos)
-		api.GET("/video", routers.VideoDataStream)
+		api.GET("/search", controllers.SearchVideos)
+		api.GET("/video", controllers.VideoDataStream)
 	}
 	
 	return app

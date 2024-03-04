@@ -118,3 +118,15 @@ type VideoPlaybackResponse struct {
 		IsLiveContent     bool   `json:"isLiveContent"`
 	} `json:"videoDetails"`
 }
+
+type FFProbeOutputResponse struct {
+	Format struct {
+		Duration string `json:"duration"`
+		Tags     struct {
+			Artist string `json:"ARTIST"`
+			Title  string `json:"TITLE"`
+			Album  string `json:"ALBUM"`
+			Genre  string `json:"GENRE"`
+		} `json:"tags"`
+	} `json:"format"`
+}

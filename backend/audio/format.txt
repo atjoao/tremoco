@@ -2,3 +2,6 @@ Format
 /albumname
 -- > cover.(webp/png/jpg)
 -- > name (filename).(mp3/opus/webm/flac)
+||
+if possible to detect album name from the audio files
+the album name will be from the audio files
