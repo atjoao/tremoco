@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"log"
+	"music/server/env"
 	"music/server/functions"
 	structs "music/server/utils"
 	"regexp"
@@ -79,7 +80,7 @@ func VideoDataStream(ctx *gin.Context) {
 			},
 		})
 
-	} else {
+	} else if env.INCLUDE_YOUTUBE{
 		response, metas, err := functions.VideoMeta(videoId, includeVideoBool)
 	
 		if complete == "true" {
