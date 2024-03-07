@@ -31,6 +31,7 @@ func engine() *gin.Engine {
 	{
 		api.GET("/search", controllers.SearchVideos)
 		api.GET("/video", controllers.VideoDataStream)
+		api.GET("/stream/:audioId", controllers.StreamAudio)
 	}
 
 	auth := app.Group("/auth")
@@ -38,6 +39,8 @@ func engine() *gin.Engine {
 		auth.POST("/login", controllers.Login)
 		auth.POST("/register", controllers.Register)
 	}
+
+	// view routes
 
 	return app
 }

@@ -6,9 +6,9 @@ import (
 	"time"
 )
 
-var streamCache = make(map[string]VideoPlaybackResponse)
+var streamCache = make(map[string]YT_VideoPlaybackResponse)
 
-func StreamCreateCache(videoData VideoPlaybackResponse) bool {
+func StreamCreateCache(videoData YT_VideoPlaybackResponse) bool {
 	_, valueInCache := streamCache[videoData.VideoDetails.VideoId]
 
 	if valueInCache{
@@ -32,7 +32,7 @@ func StreamCreateCache(videoData VideoPlaybackResponse) bool {
 	return true
 }
 
-func StreamGetFromCache(videoId string) (bool, *VideoPlaybackResponse){
+func StreamGetFromCache(videoId string) (bool, *YT_VideoPlaybackResponse){
 	value, valueInCache := streamCache[videoId]
 	if !valueInCache{
 		return false, nil

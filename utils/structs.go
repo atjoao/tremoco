@@ -35,12 +35,10 @@ type Streams struct {
 }
 
 type Thumbnail struct {
-	URL    string `json:"url"`
-	Width  int    `json:"width"`
-	Height int    `json:"height"`
+	URL string `json:"url"`
 }
 
-type VideoPlaybackResponse struct {
+type YT_VideoPlaybackResponse struct {
 	PlayabilityStatus struct {
 		Status          string `json:"status"`
 		PlayableInEmbed bool   `json:"playableInEmbed"`
@@ -122,8 +120,10 @@ type VideoPlaybackResponse struct {
 
 type FFProbeOutputResponse struct {
 	Format struct {
-		Duration string `json:"duration"`
-		Tags     struct {
+		Bitrate    string `json:"bit_rate"`
+		Duration   string `json:"duration"`
+		FormatName string `json:"format_name"`
+		Tags       struct {
 			Artist string `json:"ARTIST"`
 			Title  string `json:"TITLE"`
 			Album  string `json:"ALBUM"`

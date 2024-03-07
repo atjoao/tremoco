@@ -36,7 +36,7 @@ func findCover(dirPath string) (string, error) {
 	return "", nil
 }
 
-func ffprobeOutput(path string) (*utils.FFProbeOutputResponse, error){
+func FfprobeOutput(path string) (*utils.FFProbeOutputResponse, error){
 	var output utils.FFProbeOutputResponse
 	var err error
 	cmd := "ffprobe"
@@ -44,7 +44,7 @@ func ffprobeOutput(path string) (*utils.FFProbeOutputResponse, error){
 
 	out, err := exec.Command(cmd, args...).Output()
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	err = json.Unmarshal(out, &output)
 	if err != nil {
@@ -127,7 +127,7 @@ func ReadFolder(albumId int, folder string) (bool, error) {
                     	continue
 					}
 
-					output, err := ffprobeOutput(filepath.ToSlash(fullPath))
+					output, err := FfprobeOutput(filepath.ToSlash(fullPath))
 					if err != nil {
 						log.Println("Error processing audio file > ", err)
 						continue
