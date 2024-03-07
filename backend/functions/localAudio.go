@@ -3,7 +3,6 @@ package functions
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"math"
 	"music/server/utils"
@@ -12,11 +11,29 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 func isAudioFile(filename string) bool {
 	audioRegex := regexp.MustCompile(`\.(mp3|wav|flac|aac|opus)$`)
 	return audioRegex.MatchString(filename)
+}
+
+func findCover(dirPath string) (string, error) {
+	dirEntries, err := os.ReadDir(dirPath)
+	if err != nil {
+		return "", err
+	}
+	for _, entry := range dirEntries {
+		if !entry.IsDir(){
+			switch strings.ToLower(entry.Name()) {
+				case "cover.jpg", "cover.png", "cover.jpeg":
+					log.Println("Cover found: ", entry.Name())
+					return filepath.Join(dirPath, entry.Name()), nil
+				}
+		}
+	}
+	return "", nil
 }
 
 func ffprobeOutput(path string) (*utils.FFProbeOutputResponse, error){
@@ -37,7 +54,10 @@ func ffprobeOutput(path string) (*utils.FFProbeOutputResponse, error){
 	return &output, err
 }
 
-func ProcessAudioFiles(db *sql.DB) (bool, error) {
+func ProcessAudioFiles() (bool, error) {
+	db := utils.StartConn()
+	var err error
+
 	log.Println("Processing audio files")
 	folders, err := os.ReadDir("audio")
 
@@ -47,17 +67,25 @@ func ProcessAudioFiles(db *sql.DB) (bool, error) {
 
 	for _, e := range folders {
 		if e.IsDir() {
-			fmt.Println("Folder: ", e.Name())
+			log.Println("Folder: ", e.Name())
+			currPath := filepath.Join("audio", e.Name());
+			cover, err := findCover(currPath)
+			if err != nil {
+				log.Println("Error finding cover > ", err);
+			}
+			if cover == "" {
+				log.Println("No cover found for album: ", e.Name());
+			}
 			const checkAlbumSQL = "SELECT id FROM Album WHERE name = $1"
 			
 			var albumID int
-			err := db.QueryRow(checkAlbumSQL, e.Name()).Scan(&albumID)
+			err = db.QueryRow(checkAlbumSQL, e.Name()).Scan(&albumID)
 			if err != nil {
 				if err != sql.ErrNoRows{
 					log.Panic("Error checking if album exists > ", err)
 				}
-				const sql string = "INSERT INTO Album(name) VALUES ($1) RETURNING id"
-				err = db.QueryRow(sql, e.Name()).Scan(&albumID)
+				const sql string = "INSERT INTO Album(name,cover) VALUES ($1,$2) RETURNING id"
+				err = db.QueryRow(sql, e.Name(), cover).Scan(&albumID)
 				if err != nil {
 					log.Panic("Error sending inserting album into database > ", err)
 				}
@@ -66,22 +94,23 @@ func ProcessAudioFiles(db *sql.DB) (bool, error) {
 				log.Println("Album already exists in database with ID: ", albumID)
 			}
 			
-			ReadFolder(albumID,filepath.Join("audio", e.Name()), db)
+			ReadFolder(albumID,currPath)
 		}
 	}
 
 	return true, nil
 }
 
-func ReadFolder(albumId int, folder string, db *sql.DB) (bool, error) {
+func ReadFolder(albumId int, folder string) (bool, error) {
     folders, err := os.ReadDir(folder)
+	db := utils.StartConn()
     if err != nil {
         return false, err
     }
 
     for _, e := range folders {
         if e.IsDir() {
-            if _, err := ReadFolder(albumId, filepath.Join(folder, e.Name()), db); err != nil {
+            if _, err := ReadFolder(albumId, filepath.Join(folder, e.Name())); err != nil {
                 return false, err
             }
         } else {

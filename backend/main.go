@@ -1,12 +1,12 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"music/server/controllers"
 	"music/server/env"
 	"music/server/functions"
+	"music/server/utils"
 	"os"
 	"strings"
 
@@ -15,12 +15,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var dbConn *sql.DB = nil;
-
 func engine() *gin.Engine {
 	app := gin.New()
 	
-	store, err := postgres.NewStore(dbConn, []byte(env.SECRET_KEY))
+	store, err := postgres.NewStore(utils.StartConn(), []byte(env.SECRET_KEY))
 	if err != nil {
 		log.Panicln("Error creating session store > ", err)
 	}
@@ -40,12 +38,12 @@ func engine() *gin.Engine {
 func main() {
 
 	var err error
-	dbConn, err = sql.Open("postgres", env.POSTGRES_URI)
-	if err != nil {
-		log.Panicln("Error connecting to postgres database > ", err)
+	dbConn := utils.StartConn()
+	if dbConn != nil {
+		log.Println("Connected to postgres database")
+
 	}
 
-	log.Println("Connected to postgres database")
 	log.Println("Executing .sql files")
 	files, err := os.ReadDir("database")
 	
@@ -72,7 +70,7 @@ func main() {
 		}
 	}
 	
-	functions.ProcessAudioFiles(dbConn)
+	functions.ProcessAudioFiles()
 
 	app := engine()
 	if err := app.Run(":3000"); err != nil {

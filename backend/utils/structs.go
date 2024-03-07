@@ -16,6 +16,7 @@ type VideoSearch struct {
 	Id       string `json:"id"`
 	Title    string `json:"title"`
 	ImageUrl string `json:"thumbnail"`
+	Provider string `json:"provider"`
 }
 
 type VideoMeta struct {
@@ -129,4 +130,11 @@ type FFProbeOutputResponse struct {
 			Genre  string `json:"GENRE"`
 		} `json:"tags"`
 	} `json:"format"`
+}
+
+type MusicListDb struct {
+	Cover    string
+	Music_id string
+	Id       string
+	Title    string
 }

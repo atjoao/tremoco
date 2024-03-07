@@ -14,14 +14,16 @@ CREATE TABLE IF NOT EXISTS Music(
     duration INT NOT NULL,
     genre VARCHAR(255) NOT NULL,
     location VARCHAR(255) NOT NULL,
-    PRIMARY KEY(id)
+    PRIMARY KEY(id),
+    UNIQUE(id, location)
 );
 -- album detected by folder name
 CREATE TABLE IF NOT EXISTS Album(
     id serial,
     name VARCHAR(255) NOT NULL,
+    cover VARCHAR(255),
     PRIMARY KEY(id),
-    UNIQUE(name)
+    UNIQUE(name, cover)
 );
 
 CREATE TABLE IF NOT EXISTS Album_Music (
