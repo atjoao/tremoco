@@ -12,7 +12,7 @@ func LocalVideoMeta(videoId string) (*utils.VideoMeta ,string){
 	var music utils.VideoMeta
 	var location string
 	music.Thumbnails = append(music.Thumbnails, utils.Thumbnail{URL: ""})
-	music.Streams = append(music.Streams, utils.Streams{AudioQuality: "", MimeType: "", StreamUrl: "/stream/" + videoId})
+	music.Streams = append(music.Streams, utils.Streams{AudioQuality: "", MimeType: "", StreamUrl: "/api/stream/" + videoId})
 	
 	err = db.QueryRow(sql, videoId).Scan(&music.Thumbnails[0].URL, &music.VideoId, &music.Title, &music.Duration, &music.Author, &location)
 	if err != nil {
