@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// TODO: add local audio support for streams
 func VideoDataStream(ctx *gin.Context) {
 	videoId := ctx.Query("id")
 	includeVideo := ctx.Query("videos")
@@ -40,7 +41,7 @@ func VideoDataStream(ctx *gin.Context) {
 		log.Printf("Error searching for videos: %v", err)
 		ctx.JSON(500, gin.H{
 			"status": "SERVER_ERROR",
-			"error":  "Internal Server Error",
+			"message":  "Internal Server Error",
 		})
 		return
 	}
@@ -80,7 +81,7 @@ func SearchVideos(ctx *gin.Context) {
 		log.Printf("Error searching for videos: %v", err)
 		ctx.JSON(500, gin.H{
 			"status": "SERVER_ERROR",
-			"error":  "Internal Server Error",
+			"message":  "Internal Server Error",
 		})
 		return
 	}

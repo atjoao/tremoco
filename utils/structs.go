@@ -1,9 +1,9 @@
 package utils
 
 type User struct {
-	Username  string
-	Password  string
-	Playlists []Playlist
+	Username string
+	Password string
+	Id       int
 }
 
 type Playlist struct {

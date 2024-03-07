@@ -3,5 +3,6 @@ CREATE TABLE IF NOT EXISTS Users(
     username VARCHAR(30) NOT NULL,
     passwordHash VARCHAR(255) NOT NULL,
 
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    UNIQUE (username)
 );

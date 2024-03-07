@@ -27,21 +27,26 @@ func engine() *gin.Engine {
 
 	// api routes
 	api := app.Group("/api")
+	api.Use(controllers.AuthRequired)
 	{
 		api.GET("/search", controllers.SearchVideos)
 		api.GET("/video", controllers.VideoDataStream)
 	}
-	
+
+	auth := app.Group("/auth")
+	{
+		auth.POST("/login", controllers.Login)
+		auth.POST("/register", controllers.Register)
+	}
+
 	return app
 }
 
 func main() {
-
 	var err error
 	dbConn := utils.StartConn()
 	if dbConn != nil {
 		log.Println("Connected to postgres database")
-
 	}
 
 	log.Println("Executing .sql files")

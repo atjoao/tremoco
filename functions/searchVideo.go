@@ -61,7 +61,6 @@ func SearchVideo(name string) ([]utils.VideoSearch, error) {
 
 	if err != nil {
 		log.Println("Error querying db > ", err)
-
 		return allVideos, nil
 	}
 	defer rows.Close()
