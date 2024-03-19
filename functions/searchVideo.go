@@ -56,7 +56,7 @@ func SearchVideo(name string) ([]utils.VideoSearch, error) {
 	}
 
 	// SELECT album.cover, album_music.music_id, music.id, music.title FROM album_music, music,album WHERE music.title LIKE '%Full%' AND album_music.music_id = music.id AND album.id = album_music.album_id;
-	var sql string = "SELECT album.cover, music.id, music.title FROM album_music, music, album WHERE music.title ~* $1 AND album_music.music_id = music.id AND album.id = album_music.album_id;"
+	var sql string = "SELECT music.id, music.title FROM album_music, music, album WHERE music.title ~* $1 AND album_music.music_id = music.id AND album.id = album_music.album_id;"
 	rows, err := db.Query(sql, name)
 
 	if err != nil {
@@ -66,7 +66,9 @@ func SearchVideo(name string) ([]utils.VideoSearch, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var musicListDb utils.MusicListDb
-		err := rows.Scan(&musicListDb.Cover, &musicListDb.Music_id, &musicListDb.Title)
+		err := rows.Scan(&musicListDb.Music_id, &musicListDb.Title)
+		musicListDb.Cover = "/api/cover/"+musicListDb.Music_id
+
 		if err != nil {
 			log.Println("Error scanning rows > ", err)
 			continue

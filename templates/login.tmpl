@@ -1,0 +1,14 @@
+{{ template "header" . }}
+
+<form action="/auth/login" method="post">
+	<h1>Login</h1>
+	<div>
+		<input type="text" name="username" placeholder="username" />
+		<input type="password" name="password" placeholder="password" />
+	</div>
+	<button type="submit">Login</button>
+
+	<p>Register? <a href="/register">Click here</a></p>
+</form>
+
+{{ template "eop" . }}

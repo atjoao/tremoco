@@ -1,0 +1,79 @@
+@import "root.css";
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+form *:not(h1){
+    color: #000;
+}
+
+form h1 { 
+    width: 100%;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    background: var(--secondary);
+    border: 1px solid var(--accent);
+    gap: 20px;
+
+    width: 20%;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+form div {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+
+}
+
+form div input {
+    font-size: 16px;
+    padding: 10px;
+    margin: 5px 0;
+    border: none;
+}
+
+form button {
+    width: 100%;
+    padding: 10px;
+
+    background-color: var(--accent);
+    border: none;
+
+    cursor: pointer;
+    color: white;
+
+    font-size: 16px;
+
+    border-radius: 10px;
+
+    transition: all .1s ease-in-out;
+}
+
+form button:active{
+    opacity: 0.8;
+}
+
+form p , form a {
+    color: white;
+    transition: all .3s ease-in-out;
+}
+
+form a:hover{
+    color: var(--accent);
+    filter: brightness(1.5);
+}
+
+form a:active{
+    opacity: 0.8;
+}

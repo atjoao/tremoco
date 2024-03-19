@@ -4,39 +4,11 @@ import (
 	"log"
 	"music/server/env"
 	"music/server/functions"
-	structs "music/server/utils"
+	"music/server/utils"
 	"regexp"
 
 	"github.com/gin-gonic/gin"
 )
-
-func StreamAudio(ctx *gin.Context) {
-	audioId := ctx.Param("audioId")
-	if len(audioId) <= 0 {
-		ctx.JSON(400, gin.H{
-			"status":  "MISSED_PARAMS",
-			"message": `no "audioId" param or empty`,
-		})
-		return
-	}
-
-	idRegex := regexp.MustCompile(`local_[^\s]+`)
-	if idRegex.MatchString(audioId){
-		_, location := functions.LocalVideoMeta(audioId)
-		if location == ""{
-			ctx.JSON(404, gin.H{
-				"status": "NOTHING_FOUND",
-			})
-			return
-		} else {
-			ctx.File(location)
-		}
-	} else {
-		ctx.JSON(404, gin.H{
-			"status": "NOTHING_FOUND",
-		})
-	}
-}
 
 func VideoDataStream(ctx *gin.Context) {
 	videoId := ctx.Query("id")
@@ -52,16 +24,16 @@ func VideoDataStream(ctx *gin.Context) {
 	complete := ctx.Query("complete")
 
 	var includeVideoBool bool
-	if includeVideo == "true"{
+	if includeVideo == "true" {
 		includeVideoBool = true
 	} else {
 		includeVideoBool = false
 	}
 
 	idRegex := regexp.MustCompile(`local_[^\s]+`)
-	if idRegex.MatchString(videoId){
-		response, _ := functions.LocalVideoMeta(videoId)
-		if response == nil{
+	if idRegex.MatchString(videoId) {
+		response := functions.LocalVideoMeta(videoId)
+		if response == nil {
 			ctx.JSON(404, gin.H{
 				"status": "NOTHING_FOUND",
 			})
@@ -70,31 +42,31 @@ func VideoDataStream(ctx *gin.Context) {
 
 		ctx.PureJSON(200, gin.H{
 			"status": "OK",
-			"data": &structs.VideoMeta{
-				VideoId: response.VideoId,
-				Title: response.Title,
-				Author: response.Author,
+			"data": &utils.VideoMeta{
+				VideoId:    response.VideoId,
+				Title:      response.Title,
+				Author:     response.Author,
 				Thumbnails: response.Thumbnails,
-				Duration: response.Duration,
-				Streams: response.Streams,
+				Duration:   response.Duration,
+				Streams:    response.Streams,
 			},
 		})
 
-	} else if env.INCLUDE_YOUTUBE{
+	} else if env.INCLUDE_YOUTUBE {
 		response, metas, err := functions.VideoMeta(videoId, includeVideoBool)
-	
+
 		if complete == "true" {
 			ctx.PureJSON(200, gin.H{
 				"status": "OK",
-				"data": response,
+				"data":   response,
 			})
 			return
 		}
 		if err != nil {
 			log.Printf("Error searching for videos: %v", err)
 			ctx.JSON(500, gin.H{
-				"status": "SERVER_ERROR",
-				"message":  "Internal Server Error",
+				"status":  "SERVER_ERROR",
+				"message": "Internal Server Error",
 			})
 			return
 		}
@@ -108,17 +80,17 @@ func VideoDataStream(ctx *gin.Context) {
 
 		ctx.PureJSON(200, gin.H{
 			"status": "OK",
-			"data": &structs.VideoMeta{
-				VideoId: response.VideoDetails.VideoId,
-				Title: response.VideoDetails.Title,
-				Author: response.VideoDetails.Author,
+			"data": &utils.VideoMeta{
+				VideoId:    response.VideoDetails.VideoId,
+				Title:      response.VideoDetails.Title,
+				Author:     response.VideoDetails.Author,
 				Thumbnails: response.VideoDetails.Thumbnail.Thumbnails,
-				Duration: response.VideoDetails.LengthSeconds,
-				Streams: metas,
+				Duration:   response.VideoDetails.LengthSeconds,
+				Streams:    metas,
 			},
 		})
 	}
-	
+
 }
 
 func SearchVideos(ctx *gin.Context) {
@@ -135,8 +107,8 @@ func SearchVideos(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("Error searching for videos: %v", err)
 		ctx.JSON(500, gin.H{
-			"status": "SERVER_ERROR",
-			"message":  "Internal Server Error",
+			"status":  "SERVER_ERROR",
+			"message": "Internal Server Error",
 		})
 		return
 	}

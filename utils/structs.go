@@ -20,10 +20,11 @@ type VideoSearch struct {
 }
 
 type VideoMeta struct {
-	VideoId    string      `json:"videoid"`
-	Title      string      `json:"title"`
-	Author     string      `json:"author"`
-	Duration   string      `json:"duration"`
+	VideoId    string `json:"videoid"`
+	Title      string `json:"title"`
+	Author     string `json:"author"`
+	Duration   string `json:"duration"`
+	Location   string
 	Thumbnails []Thumbnail `json:"thumbnails"`
 	Streams    []Streams   `json:"streams"`
 }

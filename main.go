@@ -17,6 +17,7 @@ import (
 
 func engine() *gin.Engine {
 	app := gin.New()
+	app.LoadHTMLGlob("templates/*")
 	
 	store, err := postgres.NewStore(utils.StartConn(), []byte(env.SECRET_KEY))
 	if err != nil {
@@ -32,6 +33,7 @@ func engine() *gin.Engine {
 		api.GET("/search", controllers.SearchVideos)
 		api.GET("/video", controllers.VideoDataStream)
 		api.GET("/stream/:audioId", controllers.StreamAudio)
+		api.GET("/cover/:audioId", controllers.GetAudioCover)
 	}
 
 	auth := app.Group("/auth")
@@ -40,7 +42,28 @@ func engine() *gin.Engine {
 		auth.POST("/register", controllers.Register)
 	}
 
-	// view routes
+	// public routes
+	app.Static("/assets", "./assets")
+
+	app.GET("/", func(ctx *gin.Context) {
+		const loadTemplate string = "dash.tmpl"
+		if sessions.Default(ctx).Get("userId") != nil {
+			ctx.HTML(200, loadTemplate, gin.H{
+				"Title": "Inicio",
+				"loadTemplate": loadTemplate,
+			})
+		} else {
+			ctx.Redirect(302, "/login")
+		}
+	})
+
+	app.GET("/login", func(ctx *gin.Context) {
+		const loadTemplate string = "login.tmpl"
+		ctx.HTML(200, loadTemplate, gin.H{
+			"Title": "Login",
+			"loadTemplate": loadTemplate,
+		})
+	})
 
 	return app
 }

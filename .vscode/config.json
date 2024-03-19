@@ -1,0 +1,11 @@
+{
+	"[gotmpl]": {
+		"editor.suggest.insertMode": "replace"
+	},
+	"files.associations": {
+		"*.tmpl": "html"
+	},
+	"[html]": {
+		"editor.suggest.insertMode": "replace"
+	}
+}
