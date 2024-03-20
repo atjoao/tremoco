@@ -2,6 +2,7 @@
 
 <form action="/auth/login" method="post">
 	<h1>Login</h1>
+	<p id="event"></p>
 	<div>
 		<input type="text" name="username" placeholder="username" />
 		<input type="password" name="password" placeholder="password" />
@@ -11,4 +12,5 @@
 	<p>Register? <a href="/register">Click here</a></p>
 </form>
 
+{{ template "formauth_script" . }}
 {{ template "eop" . }}

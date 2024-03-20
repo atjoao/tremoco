@@ -65,6 +65,14 @@ func engine() *gin.Engine {
 		})
 	})
 
+	app.GET("/register", func(ctx *gin.Context) {
+		const loadTemplate string = "register.tmpl"
+		ctx.HTML(200, loadTemplate, gin.H{
+			"Title": "Register",
+			"loadTemplate": loadTemplate,
+		})
+	})
+
 	return app
 }
 
