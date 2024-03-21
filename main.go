@@ -16,7 +16,7 @@ import (
 )
 
 func engine() *gin.Engine {
-	app := gin.New()
+	app := gin.Default()
 	app.LoadHTMLGlob("templates/*")
 	
 	store, err := postgres.NewStore(utils.StartConn(), []byte(env.SECRET_KEY))
@@ -51,6 +51,7 @@ func engine() *gin.Engine {
 			ctx.HTML(200, loadTemplate, gin.H{
 				"Title": "Inicio",
 				"loadTemplate": loadTemplate,
+				"username": sessions.Default(ctx).Get("username"),
 			})
 		} else {
 			ctx.Redirect(302, "/login")

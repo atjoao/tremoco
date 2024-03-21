@@ -16,7 +16,7 @@ func GetAudioCover(ctx *gin.Context){
 		})
 		return
 	}
-	idRegex := regexp.MustCompile(`local_[^\s]+`)
+	idRegex := regexp.MustCompile(`local-[^\s]+`)
 	if idRegex.MatchString(audioId){
 		music := functions.LocalVideoMeta(audioId)
 		if music == nil{
@@ -25,7 +25,7 @@ func GetAudioCover(ctx *gin.Context){
 			})
 			return
 		} else {
-			ctx.File(music.Thumbnails[0].URL)
+			ctx.File(music.Cover)
 		}
 	} else {
 		ctx.JSON(404, gin.H{
@@ -45,7 +45,7 @@ func StreamAudio(ctx *gin.Context) {
 		return
 	}
 
-	idRegex := regexp.MustCompile(`local_[^\s]+`)
+	idRegex := regexp.MustCompile(`local-[^\s]+`)
 	if idRegex.MatchString(audioId){
 		music := functions.LocalVideoMeta(audioId)
 		if music.Location == ""{

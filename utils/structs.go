@@ -25,6 +25,7 @@ type VideoMeta struct {
 	Author     string `json:"author"`
 	Duration   string `json:"duration"`
 	Location   string
+	Cover      string
 	Thumbnails []Thumbnail `json:"thumbnails"`
 	Streams    []Streams   `json:"streams"`
 }

@@ -72,6 +72,7 @@ func Login(ctx *gin.Context) {
 	}
 
 	session.Set("userId", user.Id)
+	session.Set("username", user.Username)
 	if err := session.Save(); err != nil {
 		ctx.JSON(500, gin.H{
 			"status": "SERVER_ERROR",
@@ -123,6 +124,7 @@ func Register(ctx *gin.Context) {
 	}
 
 	session.Set("userId", userId)
+	session.Set("username", username)
 	if err := session.Save(); err != nil {
 		ctx.JSON(500, gin.H{
 			"status": "SERVER_ERROR",

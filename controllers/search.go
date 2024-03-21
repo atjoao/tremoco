@@ -30,7 +30,7 @@ func VideoDataStream(ctx *gin.Context) {
 		includeVideoBool = false
 	}
 
-	idRegex := regexp.MustCompile(`local_[^\s]+`)
+	idRegex := regexp.MustCompile(`local-[^\s]+`)
 	if idRegex.MatchString(videoId) {
 		response := functions.LocalVideoMeta(videoId)
 		if response == nil {

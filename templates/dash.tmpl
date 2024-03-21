@@ -1,5 +1,39 @@
 {{ template "header" . }}
 
-<p>in a logged in page</p>
+<header>
+    <p>Dashboard</p>
+    <p>{{ .username }}</p>
+    <!-- clicar em username faz um dropdown q aparece o logout -->
+</header>
+
+<main>
+    <div>
+        <input type="text" id="searchMusic" placeholder="Search for a song"/>
+        <hr>
+        <!-- go template loop here -->
+        <p>Recently Played</p>
+
+        <a href="">
+            <div>
+                <p>Playlist Name</p>
+                <p>200 Songs</p>
+            </div>
+        </a>
+
+        <a href="">
+            <div>
+                <p>Song Name</p>
+                <p>Artist</p>
+            </div>
+        </a>
+
+    </div>
+
+    <!-- replace content here -->
+    <div id="pageContent">
+        placeholder
+    </div>
+</main>
+
 
 {{ template "eop" . }}

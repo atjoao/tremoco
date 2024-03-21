@@ -133,7 +133,7 @@ func ReadFolder(albumId int, folder string) (bool, error) {
 						continue
 					}
 
-					audioId = "local_" + utils.RandString(24)
+					audioId = "local-" + utils.RandString(24)
 					duration, _ := strconv.ParseFloat(output.Format.Duration, 64)
 					title := output.Format.Tags.Title
 					if title == "" {
