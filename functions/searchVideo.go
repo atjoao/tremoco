@@ -3,10 +3,10 @@ package functions
 import (
 	"io"
 	"log"
-	"music/server/env"
-	"music/server/utils"
+	"music/utils"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 )
 
@@ -15,7 +15,7 @@ func SearchVideo(name string) ([]utils.VideoSearch, error) {
 	const ytUrl string = "https://www.youtube.com/results"
 	allVideos := make([]utils.VideoSearch, 0)
 
-	if env.INCLUDE_YOUTUBE {
+	if os.Getenv("INCLUDE_YOUTUBE") == "true" {
 		parseUrl, err := url.Parse(ytUrl)
 
 		if err != nil {
@@ -67,7 +67,7 @@ func SearchVideo(name string) ([]utils.VideoSearch, error) {
 	for rows.Next() {
 		var musicListDb utils.MusicListDb
 		err := rows.Scan(&musicListDb.Music_id, &musicListDb.Title)
-		musicListDb.Cover = "/api/cover/"+musicListDb.Music_id
+		musicListDb.Cover = "/api/cover/" + musicListDb.Music_id
 
 		if err != nil {
 			log.Println("Error scanning rows > ", err)

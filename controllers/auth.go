@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"database/sql"
-	"music/server/utils"
+	"music/utils"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -22,12 +22,12 @@ func CheckHashPassword(password string, pswdhash string) bool {
 	return err == nil
 }
 
-func AuthRequired(ctx *gin.Context){
+func AuthRequired(ctx *gin.Context) {
 	session := sessions.Default(ctx)
 	userId := session.Get("userId")
 	if userId == nil {
 		ctx.AbortWithStatusJSON(403, gin.H{
-			"status": "UNAUTHORIZED",
+			"status":  "UNAUTHORIZED",
 			"message": "Login required",
 		})
 		return
@@ -57,16 +57,16 @@ func Login(ctx *gin.Context) {
 	err = db.QueryRow(sql, username).Scan(&user.Username, &user.Password, &user.Id)
 	if err != nil {
 		ctx.JSON(404, gin.H{
-			"status": "NOT_FOUND",
-			"message":  "User not found",
+			"status":  "NOT_FOUND",
+			"message": "User not found",
 		})
 		return
 	}
 
 	if !CheckHashPassword(password, user.Password) {
 		ctx.JSON(401, gin.H{
-			"status": "WRONG_PASSWORD",
-			"message":  "Wrong password",
+			"status":  "WRONG_PASSWORD",
+			"message": "Wrong password",
 		})
 		return
 	}
@@ -75,14 +75,14 @@ func Login(ctx *gin.Context) {
 	session.Set("username", user.Username)
 	if err := session.Save(); err != nil {
 		ctx.JSON(500, gin.H{
-			"status": "SERVER_ERROR",
-			"message":  "Internal Server Error",
+			"status":  "SERVER_ERROR",
+			"message": "Internal Server Error",
 		})
 		return
 	}
 
 	ctx.JSON(200, gin.H{
-		"status": "OK",
+		"status":  "OK",
 		"message": "User logged in",
 	})
 
@@ -107,18 +107,18 @@ func Register(ctx *gin.Context) {
 	var hashedPswd string = HashPassword(password)
 	if hashedPswd == "" {
 		ctx.JSON(500, gin.H{
-			"status": "SERVER_ERROR",
-			"message":  "Internal Server Error",
+			"status":  "SERVER_ERROR",
+			"message": "Internal Server Error",
 		})
 		return
 	}
 
 	var userId int
-	err = db.QueryRow(sql, username, hashedPswd).Scan(&userId);
+	err = db.QueryRow(sql, username, hashedPswd).Scan(&userId)
 	if err != nil {
 		ctx.JSON(409, gin.H{
-			"status": "ACCOUNT_EXISTS",
-			"message":  "An account with this username already exists",
+			"status":  "ACCOUNT_EXISTS",
+			"message": "An account with this username already exists",
 		})
 		return
 	}
@@ -127,14 +127,14 @@ func Register(ctx *gin.Context) {
 	session.Set("username", username)
 	if err := session.Save(); err != nil {
 		ctx.JSON(500, gin.H{
-			"status": "SERVER_ERROR",
-			"message":  "Internal Server Error",
+			"status":  "SERVER_ERROR",
+			"message": "Internal Server Error",
 		})
 		return
 	}
 
 	ctx.JSON(200, gin.H{
-		"status": "OK",
+		"status":  "OK",
 		"message": "User registred",
 	})
 }

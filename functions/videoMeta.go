@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"music/server/utils"
+	"music/utils"
 	"net/http"
 	"net/url"
 	"strings"
@@ -15,7 +15,7 @@ func VideoMeta(videoId string, includeVideo bool) (*utils.YT_VideoPlaybackRespon
 	var response utils.YT_VideoPlaybackResponse
 
 	inCache, getCacheValue := utils.StreamGetFromCache(videoId)
-	if !inCache{
+	if !inCache {
 		const ytUrl string = "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
 		var jsonStr = fmt.Sprintf(`{"videoId": "%s","context": {"client": {"clientName": "ANDROID_TESTSUITE","clientVersion": "1.9","androidSdkVersion": 30,"hl": "en","gl": "US","utcOffsetMinutes": 0}}}`, videoId)
 
@@ -58,8 +58,7 @@ func VideoMeta(videoId string, includeVideo bool) (*utils.YT_VideoPlaybackRespon
 
 		metas = append(metas, *videoMeta)
 	}
-	
+
 	return &response, metas, nil
 
 }
-

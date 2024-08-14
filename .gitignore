@@ -1,5 +1,4 @@
 testcode/
 audio/
-env/*
-!env/env.go.example
+.env
 !audio/format.txt

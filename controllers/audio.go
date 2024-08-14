@@ -1,13 +1,13 @@
 package controllers
 
 import (
-	"music/server/functions"
+	"music/functions"
 	"regexp"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetAudioCover(ctx *gin.Context){
+func GetAudioCover(ctx *gin.Context) {
 	audioId := ctx.Param("audioId")
 	if len(audioId) <= 0 {
 		ctx.JSON(400, gin.H{
@@ -17,9 +17,9 @@ func GetAudioCover(ctx *gin.Context){
 		return
 	}
 	idRegex := regexp.MustCompile(`local-[^\s]+`)
-	if idRegex.MatchString(audioId){
+	if idRegex.MatchString(audioId) {
 		music := functions.LocalVideoMeta(audioId)
-		if music == nil{
+		if music == nil {
 			ctx.JSON(404, gin.H{
 				"status": "NOTHING_FOUND",
 			})
@@ -32,7 +32,6 @@ func GetAudioCover(ctx *gin.Context){
 			"status": "NOTHING_FOUND",
 		})
 	}
-
 }
 
 func StreamAudio(ctx *gin.Context) {
@@ -46,20 +45,20 @@ func StreamAudio(ctx *gin.Context) {
 	}
 
 	idRegex := regexp.MustCompile(`local-[^\s]+`)
-	if idRegex.MatchString(audioId){
+	if idRegex.MatchString(audioId) {
 		music := functions.LocalVideoMeta(audioId)
-		if music.Location == ""{
+
+		if music == nil || music.Location == "" {
 			ctx.JSON(404, gin.H{
 				"status": "NOTHING_FOUND",
 			})
 			return
-		} else {
-			ctx.File(music.Location)
 		}
+
+		ctx.File(music.Location)
 	} else {
 		ctx.JSON(404, gin.H{
 			"status": "NOTHING_FOUND",
 		})
 	}
 }
-

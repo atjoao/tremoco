@@ -1,10 +1,10 @@
 package functions
 
 import (
-	"music/server/utils"
+	"music/utils"
 )
 
-func LocalVideoMeta(videoId string) (*utils.VideoMeta ){
+func LocalVideoMeta(videoId string) *utils.VideoMeta {
 	cached, music := utils.LocalGetFromCache(videoId)
 
 	if !cached {
@@ -15,7 +15,7 @@ func LocalVideoMeta(videoId string) (*utils.VideoMeta ){
 		var music utils.VideoMeta
 		music.Thumbnails = append(music.Thumbnails, utils.Thumbnail{URL: ""})
 		music.Streams = append(music.Streams, utils.Streams{AudioQuality: "", MimeType: "", StreamUrl: "/api/stream/" + videoId})
-		
+
 		err = db.QueryRow(sql, videoId).Scan(&music.Cover, &music.VideoId, &music.Title, &music.Duration, &music.Author, &music.Location)
 		if err != nil {
 			return nil
@@ -28,11 +28,11 @@ func LocalVideoMeta(videoId string) (*utils.VideoMeta ){
 		}
 
 		music.Thumbnails[0].URL = "/api/cover/" + videoId
-		music.Streams[0].MimeType = "audio/"+output.Format.FormatName
+		music.Streams[0].MimeType = "audio/" + output.Format.FormatName
 		music.Streams[0].AudioQuality = output.Format.Bitrate
 
 		return &music
-	} else{
+	} else {
 		return music
 	}
 }

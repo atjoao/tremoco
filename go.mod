@@ -1,4 +1,4 @@
-module music/server
+module music
 
 go 1.20
 

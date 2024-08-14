@@ -3,10 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
-	"music/server/controllers"
-	"music/server/env"
-	"music/server/functions"
-	"music/server/utils"
+	"music/controllers"
+	"music/functions"
+	"music/utils"
 	"os"
 	"strings"
 
@@ -18,8 +17,8 @@ import (
 func engine() *gin.Engine {
 	app := gin.Default()
 	app.LoadHTMLGlob("templates/*")
-	
-	store, err := postgres.NewStore(utils.StartConn(), []byte(env.SECRET_KEY))
+
+	store, err := postgres.NewStore(utils.StartConn(), []byte(os.Getenv("SESSION_KEY")))
 	if err != nil {
 		log.Panicln("Error creating session store > ", err)
 	}
@@ -49,9 +48,9 @@ func engine() *gin.Engine {
 		const loadTemplate string = "dash.tmpl"
 		if sessions.Default(ctx).Get("userId") != nil {
 			ctx.HTML(200, loadTemplate, gin.H{
-				"Title": "Inicio",
+				"Title":        "Inicio",
 				"loadTemplate": loadTemplate,
-				"username": sessions.Default(ctx).Get("username"),
+				"username":     sessions.Default(ctx).Get("username"),
 			})
 		} else {
 			ctx.Redirect(302, "/login")
@@ -59,19 +58,36 @@ func engine() *gin.Engine {
 	})
 
 	app.GET("/login", func(ctx *gin.Context) {
+		if sessions.Default(ctx).Get("userId") != nil {
+			ctx.Redirect(302, "/")
+		}
 		const loadTemplate string = "login.tmpl"
 		ctx.HTML(200, loadTemplate, gin.H{
-			"Title": "Login",
+			"Title":        "Login",
 			"loadTemplate": loadTemplate,
 		})
 	})
 
 	app.GET("/register", func(ctx *gin.Context) {
+		if sessions.Default(ctx).Get("userId") != nil {
+			ctx.Redirect(302, "/")
+		}
 		const loadTemplate string = "register.tmpl"
 		ctx.HTML(200, loadTemplate, gin.H{
-			"Title": "Register",
+			"Title":        "Register",
 			"loadTemplate": loadTemplate,
 		})
+	})
+
+	app.GET("/logout", func(ctx *gin.Context) {
+		if sessions.Default(ctx).Get("userId") != nil {
+			ctx.Redirect(302, "/login")
+		}
+
+		sessions.Default(ctx).Clear()
+		sessions.Default(ctx).Save()
+
+		ctx.Redirect(302, "/login")
 	})
 
 	return app
@@ -86,7 +102,7 @@ func main() {
 
 	log.Println("Executing .sql files")
 	files, err := os.ReadDir("database")
-	
+
 	if err != nil {
 		log.Panicln("Error reading .sql files > ", err)
 	}
@@ -94,7 +110,7 @@ func main() {
 	for _, file := range files {
 		sql, err := os.ReadFile("database/" + file.Name())
 		if err != nil {
-			log.Panicln("Error reading",file.Name(),".sql file > ", err)
+			log.Panicln("Error reading", file.Name(), ".sql file > ", err)
 		}
 
 		var sqlStatement []string = strings.Split(string(sql), ";")
@@ -102,14 +118,14 @@ func main() {
 			fmt.Println(statement)
 			result, err := dbConn.Exec(statement)
 			if err != nil {
-				log.Panicln("Error on",file.Name(),"command > ", err)
+				log.Panicln("Error on", file.Name(), "command > ", err)
 			}
 			if result != nil {
 				log.Println("Executed")
 			}
 		}
 	}
-	
+
 	functions.ProcessAudioFiles()
 
 	app := engine()

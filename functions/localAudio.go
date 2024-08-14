@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"math"
-	"music/server/utils"
+	"music/utils"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -25,18 +25,18 @@ func findCover(dirPath string) (string, error) {
 		return "", err
 	}
 	for _, entry := range dirEntries {
-		if !entry.IsDir(){
+		if !entry.IsDir() {
 			switch strings.ToLower(entry.Name()) {
-				case "cover.jpg", "cover.png", "cover.jpeg":
-					log.Println("Cover found: ", entry.Name())
-					return filepath.Join(dirPath, entry.Name()), nil
-				}
+			case "cover.jpg", "cover.png", "cover.jpeg":
+				log.Println("Cover found: ", entry.Name())
+				return filepath.Join(dirPath, entry.Name()), nil
+			}
 		}
 	}
 	return "", nil
 }
 
-func FfprobeOutput(path string) (*utils.FFProbeOutputResponse, error){
+func FfprobeOutput(path string) (*utils.FFProbeOutputResponse, error) {
 	var output utils.FFProbeOutputResponse
 	var err error
 	cmd := "ffprobe"
@@ -68,20 +68,20 @@ func ProcessAudioFiles() (bool, error) {
 	for _, e := range folders {
 		if e.IsDir() {
 			log.Println("Folder: ", e.Name())
-			currPath := filepath.Join("audio", e.Name());
+			currPath := filepath.Join("audio", e.Name())
 			cover, err := findCover(currPath)
 			if err != nil {
-				log.Println("Error finding cover > ", err);
+				log.Println("Error finding cover > ", err)
 			}
 			if cover == "" {
-				log.Println("No cover found for album: ", e.Name());
+				log.Println("No cover found for album: ", e.Name())
 			}
 			const checkAlbumSQL = "SELECT id FROM Album WHERE name = $1"
-			
+
 			var albumID int
 			err = db.QueryRow(checkAlbumSQL, e.Name()).Scan(&albumID)
 			if err != nil {
-				if err != sql.ErrNoRows{
+				if err != sql.ErrNoRows {
 					log.Panic("Error checking if album exists > ", err)
 				}
 				const sql string = "INSERT INTO Album(name,cover) VALUES ($1,$2) RETURNING id"
@@ -93,8 +93,8 @@ func ProcessAudioFiles() (bool, error) {
 			} else {
 				log.Println("Album already exists in database with ID: ", albumID)
 			}
-			
-			ReadFolder(albumID,currPath)
+
+			ReadFolder(albumID, currPath)
 		}
 	}
 
@@ -102,29 +102,28 @@ func ProcessAudioFiles() (bool, error) {
 }
 
 func ReadFolder(albumId int, folder string) (bool, error) {
-    folders, err := os.ReadDir(folder)
+	folders, err := os.ReadDir(folder)
 	db := utils.StartConn()
-    if err != nil {
-        return false, err
-    }
+	if err != nil {
+		return false, err
+	}
 
-    for _, e := range folders {
-        if e.IsDir() {
-            if _, err := ReadFolder(albumId, filepath.Join(folder, e.Name())); err != nil {
-                return false, err
-            }
-        } else {
-            if isAudioFile(e.Name()) {
-                log.Println("Found audio file: ", e.Name())
-                path, _ := filepath.Abs(folder)
-                fullPath := filepath.Join(path, e.Name())
+	for _, e := range folders {
+		if e.IsDir() {
+			if _, err := ReadFolder(albumId, filepath.Join(folder, e.Name())); err != nil {
+				return false, err
+			}
+		} else {
+			if isAudioFile(e.Name()) {
+				log.Println("Found audio file: ", e.Name())
+				fullPath := filepath.Join(folder, e.Name())
 
-                var audioId string
-                err := db.QueryRow("SELECT id FROM Music WHERE location = $1", fullPath).Scan(&audioId)
-                if err != nil {
+				var audioId string
+				err := db.QueryRow("SELECT id FROM Music WHERE location = $1", fullPath).Scan(&audioId)
+				if err != nil {
 					if err != sql.ErrNoRows {
-                	    log.Println("Error checking existence of audio file in the database:", err)
-                    	continue
+						log.Println("Error checking existence of audio file in the database:", err)
+						continue
 					}
 
 					output, err := FfprobeOutput(filepath.ToSlash(fullPath))
@@ -153,15 +152,13 @@ func ReadFolder(albumId int, folder string) (bool, error) {
 						log.Println("Error associating audio file with album > ", err)
 						continue
 					}
-                } else {
-                    log.Println("Audio file already exists in the database:", e.Name())
-                    continue
-                }
-                
-            }
-        }
-    }
-    return true, nil
+				} else {
+					log.Println("Audio file already exists in the database:", e.Name())
+					continue
+				}
+
+			}
+		}
+	}
+	return true, nil
 }
-
-

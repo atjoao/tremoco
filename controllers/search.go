@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"log"
-	"music/server/env"
-	"music/server/functions"
-	"music/server/utils"
+	"music/functions"
+	"music/utils"
+	"os"
 	"regexp"
 
 	"github.com/gin-gonic/gin"
@@ -52,7 +52,7 @@ func VideoDataStream(ctx *gin.Context) {
 			},
 		})
 
-	} else if env.INCLUDE_YOUTUBE {
+	} else if os.Getenv("INCLUDE_YOUTUBE") == "true" {
 		response, metas, err := functions.VideoMeta(videoId, includeVideoBool)
 
 		if complete == "true" {
@@ -89,8 +89,12 @@ func VideoDataStream(ctx *gin.Context) {
 				Streams:    metas,
 			},
 		})
+	} else {
+		ctx.JSON(404, gin.H{
+			"status": "NOTHING_FOUND",
+		})
+		return
 	}
-
 }
 
 func SearchVideos(ctx *gin.Context) {
