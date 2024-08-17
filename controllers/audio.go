@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"music/functions"
+	"path/filepath"
 	"regexp"
 
 	"github.com/gin-gonic/gin"
@@ -55,6 +56,8 @@ func StreamAudio(ctx *gin.Context) {
 			return
 		}
 
+		ctx.Header("Content-Type", music.Streams[0].MimeType)
+		ctx.Header("Content-Disposition", "inline; filename="+filepath.Base(music.Location))
 		ctx.File(music.Location)
 	} else {
 		ctx.JSON(404, gin.H{
