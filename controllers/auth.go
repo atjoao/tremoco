@@ -37,8 +37,6 @@ func AuthRequired(ctx *gin.Context) {
 
 func Login(ctx *gin.Context) {
 	var err error
-
-	session := sessions.Default(ctx)
 	var db *sql.DB = utils.StartConn()
 
 	const sql string = "SELECT username, passwordHash, id FROM users WHERE username = $1"
@@ -71,9 +69,9 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	session.Set("userId", user.Id)
-	session.Set("username", user.Username)
-	if err := session.Save(); err != nil {
+	sessions.Default(ctx).Set("userId", user.Id)
+	sessions.Default(ctx).Set("username", user.Username)
+	if err := sessions.Default(ctx).Save(); err != nil {
 		ctx.JSON(500, gin.H{
 			"status":  "SERVER_ERROR",
 			"message": "Internal Server Error",
@@ -90,7 +88,6 @@ func Login(ctx *gin.Context) {
 
 func Register(ctx *gin.Context) {
 	var err error
-	session := sessions.Default(ctx)
 	var db *sql.DB = utils.StartConn()
 
 	const sql string = "INSERT INTO users (username, passwordHash) VALUES ($1, $2) RETURNING id;"
@@ -123,9 +120,9 @@ func Register(ctx *gin.Context) {
 		return
 	}
 
-	session.Set("userId", userId)
-	session.Set("username", username)
-	if err := session.Save(); err != nil {
+	sessions.Default(ctx).Set("userId", userId)
+	sessions.Default(ctx).Set("username", username)
+	if err := sessions.Default(ctx).Save(); err != nil {
 		ctx.JSON(500, gin.H{
 			"status":  "SERVER_ERROR",
 			"message": "Internal Server Error",

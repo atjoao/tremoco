@@ -25,6 +25,13 @@ func engine() *gin.Engine {
 
 	app.Use(sessions.Sessions("sessions", store))
 
+	// html render
+	html := app.Group("/html")
+	html.Use(controllers.AuthRequired)
+	{
+		html.GET("/sidebar", controllers.Sidebar)
+	}
+
 	// api routes
 	api := app.Group("/api")
 	api.Use(controllers.AuthRequired)

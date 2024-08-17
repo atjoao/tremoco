@@ -1,39 +1,17 @@
 {{ template "header" . }}
 
-<header>
-    <p>Dashboard</p>
-    <p>{{ .username }}</p>
-    <!-- clicar em username faz um dropdown q aparece o logout -->
-</header>
-
-<main>
-    <div>
-        <input type="text" id="searchMusic" placeholder="Search for a song"/>
-        <hr>
-        <!-- go template loop here -->
-        <p>Your playlists: </p>
-
-        <a href="">
-            <div>
-                <p>Playlist Name</p>
-                <p>200 Songs</p>
-            </div>
-        </a>
-
-        <a href="">
-            <div>
-                <p>Song Name</p>
-                <p>Artist</p>
-            </div>
-        </a>
+<div id="page">
+    <div class="sidebar">
 
     </div>
 
-    <!-- replace content here -->
-    <div id="pageContent">
-        placeholder
-    </div>
-</main>
+    <div class="main-content">
 
+    </div>
+</div>
+
+<div class="player">
+    
+</div>
 
 {{ template "eop" . }}

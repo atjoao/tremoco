@@ -1,79 +1,63 @@
 @import "root.css";
 
-body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-form *:not(h1){
-    color: #000;
-}
-
-form h1 { 
-    width: 100%;
-}
-
 form {
     display: flex;
     flex-direction: column;
+    background-color: #D9D9D9;
+    max-width: clamp(600px, 50%, 500px);
+    height: 100%;
+    gap: 18px;
+    padding: 0 50px;
+    justify-content: center;
     align-items: center;
+}
 
-    background: var(--secondary);
-    border: 1px solid var(--accent);
-    gap: 20px;
+form h1{
+    font-family: 40px;
+}
 
-    width: 20%;
-    padding: 20px;
-    border-radius: 10px;
+form h1, form p, form p a{
+    color: #000000;
+    font-weight: normal;
 }
 
 form div {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    width: 100%;
-
+    gap: 25px;
+    width: 70%;
 }
 
-form div input {
-    font-size: 16px;
+form div input{
     padding: 10px;
-    margin: 5px 0;
-    border: none;
+    color: black;
+    font-size: 20px;
+    border-radius: 5px;
+    border: 0.1px solid black;
+    box-shadow: rgba(50, 50, 93, 0.39) 0px 6px 12px -5px, rgba(0, 0, 0, 0.1) 0px 3px 8px -3px;
 }
 
 form button {
-    width: 100%;
-    padding: 10px;
-
     background-color: var(--accent);
     border: none;
+    padding: 10px;
+    background-color: 5px;
+    border-radius: 5px;
+    box-shadow: rgba(50, 50, 93, 0.39) 0px 6px 12px -5px, rgba(0, 0, 0, 0.1) 0px 3px 8px -3px;
+
+    font-size: 20px;
+    width: clamp(100px, 50%, 200px);
 
     cursor: pointer;
-    color: white;
 
-    font-size: 16px;
+    transition: 0.2s all ease-in-out;
 
-    border-radius: 10px;
-
-    transition: all .1s ease-in-out;
 }
 
-form button:active{
+form button:active {
+    background-color: var(--accent);
     opacity: 0.8;
-}
 
-form p , form a {
-    color: white;
-    transition: all .3s ease-in-out;
-}
+    transition: 0.2s all ease-in-out;
 
-form a:hover{
-    color: var(--accent);
-    filter: brightness(1.5);
-}
-
-form a:active{
-    opacity: 0.8;
 }
