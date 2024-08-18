@@ -5,12 +5,10 @@
     Home
 </div>
 
-{{ if .playlists}}
-    {{ range .playlists }}
+{{ range .playlists }}
+    <div>
         <p>{{ .PlaylistName }}</p>
-    {{ else }}
-        <p>You don't have playlists</p>
-    {{ end }}
+    </div>
 {{ else }}
-    <p>I couldn't find any playlists</p>
+    <p>You don't have any playlists</p>
 {{ end }}
