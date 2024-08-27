@@ -40,6 +40,9 @@ func engine() *gin.Engine {
 		api.GET("/video", controllers.VideoDataStream)
 		api.GET("/stream/:audioId", controllers.StreamAudio)
 		api.GET("/cover/:audioId", controllers.GetAudioCover)
+
+		api.POST("/playlist/create", controllers.CreatePlaylist)
+
 	}
 
 	auth := app.Group("/auth")

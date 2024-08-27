@@ -23,7 +23,7 @@ func CreatePlaylist(ctx *gin.Context) {
 		return
 	}
 
-	const sql string = "INSERT INTO playlists (name, user_id) VALUES ($1, $2) RETURNING id"
+	const sql string = "INSERT INTO playlists (name, userId) VALUES ($1, $2) RETURNING id"
 	var playlistId int
 
 	err = db.QueryRow(sql, playlistName, userId).Scan(&playlistId)

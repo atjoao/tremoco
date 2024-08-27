@@ -25,8 +25,10 @@ func GetAudioCover(ctx *gin.Context) {
 				"status": "NOTHING_FOUND",
 			})
 			return
-		} else {
+		} else if music.Cover != "" {
 			ctx.File(music.Cover)
+		} else {
+			ctx.File("assets/images/no-cover.png")
 		}
 	} else {
 		ctx.JSON(404, gin.H{

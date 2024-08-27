@@ -15,6 +15,38 @@ func SearchVideo(name string) ([]utils.VideoSearch, error) {
 	const ytUrl string = "https://www.youtube.com/results"
 	allVideos := make([]utils.VideoSearch, 0)
 
+	// SELECT album.cover, album_music.music_id, music.id, music.title FROM album_music, music,album WHERE music.title LIKE '%Full%' AND album_music.music_id = music.id AND album.id = album_music.album_id;
+	var sql string = "SELECT music.id, music.title FROM album_music, music, album WHERE music.title ~* $1 AND album_music.music_id = music.id AND album.id = album_music.album_id;"
+	rows, err := db.Query(sql, name)
+
+	if err != nil {
+		log.Println("Error querying db > ", err)
+		return allVideos, nil
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var musicListDb utils.MusicListDb
+		err := rows.Scan(&musicListDb.Music_id, &musicListDb.Title)
+		musicListDb.Cover = "/api/cover/" + musicListDb.Music_id
+
+		if err != nil {
+			log.Println("Error scanning rows > ", err)
+			continue
+		}
+		videoData := &utils.VideoSearch{
+			Id:       musicListDb.Music_id,
+			Title:    musicListDb.Title,
+			ImageUrl: musicListDb.Cover,
+			Provider: "local",
+		}
+		allVideos = append(allVideos, *videoData)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Println("Error scanning rows > ", err)
+		return allVideos, nil
+	}
+
 	if os.Getenv("INCLUDE_YOUTUBE") == "true" {
 		parseUrl, err := url.Parse(ytUrl)
 
@@ -53,38 +85,6 @@ func SearchVideo(name string) ([]utils.VideoSearch, error) {
 
 			allVideos = append(allVideos, *videoData)
 		}
-	}
-
-	// SELECT album.cover, album_music.music_id, music.id, music.title FROM album_music, music,album WHERE music.title LIKE '%Full%' AND album_music.music_id = music.id AND album.id = album_music.album_id;
-	var sql string = "SELECT music.id, music.title FROM album_music, music, album WHERE music.title ~* $1 AND album_music.music_id = music.id AND album.id = album_music.album_id;"
-	rows, err := db.Query(sql, name)
-
-	if err != nil {
-		log.Println("Error querying db > ", err)
-		return allVideos, nil
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var musicListDb utils.MusicListDb
-		err := rows.Scan(&musicListDb.Music_id, &musicListDb.Title)
-		musicListDb.Cover = "/api/cover/" + musicListDb.Music_id
-
-		if err != nil {
-			log.Println("Error scanning rows > ", err)
-			continue
-		}
-		videoData := &utils.VideoSearch{
-			Id:       musicListDb.Music_id,
-			Title:    musicListDb.Title,
-			ImageUrl: musicListDb.Cover,
-			Provider: "local",
-		}
-		allVideos = append(allVideos, *videoData)
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Println("Error scanning rows > ", err)
-		return allVideos, nil
 	}
 
 	return allVideos, nil

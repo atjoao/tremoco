@@ -1,11 +1,21 @@
 {{ template "header" . }}
 
-<div id="page">
-    <div class="sidebar">
+<div class="pagecontent" id="page">
+    <div class="sidebar" id="sidebar"></div>
 
-    </div>
+    <div class="main-content" id="main">
+        <div class="top">
+            <input type="search" name="" id="searchForm" placeholder="Search for a song">
+            <p>username</p>    
+        </div>
 
-    <div class="main-content">
+        <section class="content" id="content" style="overflow: auto;">
+            <div id="initial">
+                <h1>Recently Played</h1>
+            </div>
+            <div id="search" class="hidden"></div>
+            <div id="playlist" class="hidden" ></div>
+        </section>
 
     </div>
 </div>
@@ -14,4 +24,5 @@
     
 </div>
 
+<script src="/assets/js/main.js"></script>
 {{ template "eop" . }}

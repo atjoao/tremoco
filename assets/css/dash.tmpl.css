@@ -1,1 +1,229 @@
 @import "root.css";
+
+
+.pagecontent {
+    flex: 0.9;
+}
+
+.player {
+    flex: 0.1;
+}
+
+.pagecontent{
+    display: flex;
+    flex-direction: row;
+    padding: 10px;
+    border-radius: 5px;
+
+    gap: 10px;
+    outline: 1px solid var(--primary);
+
+    overflow: hidden; 
+}
+
+.pagecontent #sidebar {
+    flex: 0.15;
+    display: flex;
+
+    flex-direction: column;
+}
+
+.pagecontent #sidebar > .playlists-container {
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+
+    flex: 1;          
+    flex-shrink: 1; 
+    overflow-y: auto;
+}
+
+.pagecontent #sidebar > .playlists-container .error{
+    align-self: center;
+    margin: auto 0;
+}
+
+
+.pagecontent #sidebar > .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 10px;
+}
+
+.pagecontent #sidebar > .buttons .button{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    padding: 10px;
+    border-radius: 5px;
+    
+    cursor: pointer;
+
+    transition: background .3s ease-in-out;
+}
+
+.pagecontent #sidebar > .buttons .button:nth-child(2):hover{
+    background-color: var(--third);
+}
+
+.pagecontent #sidebar > .buttons .button:nth-child(2):active{
+    background-color: var(--secondary);
+}
+
+.pagecontent #sidebar > .playlists-container div {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 5px;
+}
+.pagecontent #sidebar > .playlists-container div:hover {
+    background-color: var(--third);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+
+.pagecontent #sidebar > .playlists-container div img{
+    width: 64px;
+    height: 64px;
+    border-radius: 5px;
+    object-fit: cover;
+}
+
+.pagecontent #sidebar > .buttons .button svg {
+    width: 32px;
+    height: 32px;
+}
+
+.pagecontent#main {
+    flex: 0.8;
+}
+
+.modal {
+    display: flex;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+
+.modal-content {
+    position: relative;
+    background-color: var(--secondary);
+    padding: 10px;
+
+    border-radius: 5px;
+}
+
+.modal-content .close {
+    background-color: #881818;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modal-content form input {
+    background-color: var(--third);
+    border: none;
+
+    padding: 10px;
+}
+
+.modal-content form button {
+    background-color: var(--third);
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+
+    border-radius: 5px;
+}
+
+.modal-content .div_container {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+
+    margin-bottom: 10px;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.main-content .top {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.main-content .top input {
+    width: 100%;
+
+    background-color: var(--secondary);
+    border: none;
+
+    padding: 10px;
+
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+.main-content .top input:focus {
+    outline: 1px solid var(--accent);
+    border: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.main-content section > #search{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    justify-content: space-between;
+}
+
+.main-content section > #search .music{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background-color: var(--third);
+    border-radius: 10px;
+    padding: 10px;
+    justify-content: space-around;
+}
+
+.main-content section > #search .music .title {
+    width: 20ch;
+}
+
+.main-content section > #search .music img {
+    width: 256px;
+    height: 256px;
+    aspect-ratio: 1/1;
+    border-radius: 5px;
+    object-fit: cover;
+}
+
+.main-content section > #search .music button{
+    background-color: #505A6C;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}

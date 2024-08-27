@@ -13,7 +13,7 @@ func Sidebar(ctx *gin.Context) {
 	var db *sql.DB = utils.StartConn()
 	var userId int = sessions.Default(ctx).Get("userId").(int)
 
-	const sql string = "SELECT * FROM playlists WHERE userId = $1"
+	const sql string = "SELECT id, name FROM playlists WHERE userId = $1"
 
 	rows, err := db.Query(sql, userId)
 	if err != nil {
