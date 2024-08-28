@@ -126,12 +126,9 @@ func main() {
 		var sqlStatement []string = strings.Split(string(sql), ";")
 		for _, statement := range sqlStatement {
 			fmt.Println(statement)
-			result, err := dbConn.Exec(statement)
+			_, err := dbConn.Exec(statement)
 			if err != nil {
 				log.Panicln("Error on", file.Name(), "command > ", err)
-			}
-			if result != nil {
-				log.Println("Executed")
 			}
 		}
 	}
