@@ -38,12 +38,39 @@ const callModel_addToPlaylist = async (musicId) => {
         div.remove();
     }
 
+    const checkboxes = document.createElement("div");
+
     // .map el add event
-    
+    fetch("/api/playlist/get/"+ musicId)
+        .then((r)=> r.json())
+        .then((resp)=> {
+            resp.playlists.forEach((playlist)=> {
+                console.log(playlist)
+                // create a selector
+                const input = document.createElement("input");
+                input.type = "checkbox";
+                input.id = playlist.playlistId;
+                input.checked = playlist.exists;
+
+                input.addEventListener("change", (e) => {
+                    // todo
+                });
+
+                const label = document.createElement("label");
+                label.htmlFor = playlist.playlistId;
+                label.textContent = playlist.playlistName;
+
+                const div = document.createElement("div");
+                div.append(input, label);
+
+                checkboxes.append(div);
+            })
+        })
+
 
     div_container.append(h1, close);
 
-    content.append(div_container);
+    content.append(div_container, checkboxes);
 
     div.appendChild(content);
     document.body.appendChild(div);
@@ -205,6 +232,9 @@ function replaceContent(type, content){
 
                 const button = document.createElement("button");
                 button.textContent = "Add to Playlist";
+                button.onclick = () => {
+                    callModel_addToPlaylist(music.id);
+                }
 
                 const play = document.createElement("button");
                 play.textContent = "Play";
