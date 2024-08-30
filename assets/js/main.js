@@ -52,8 +52,15 @@ const callModel_addToPlaylist = async (musicId) => {
                 input.id = playlist.playlistId;
                 input.checked = playlist.exists;
 
+                const formdt = new FormData();
+                formdt.append("audioId", musicId);
+                formdt.append("playlistId", playlist.playlistId);
+
                 input.addEventListener("change", (e) => {
-                    // todo
+                    fetch("/api/playlist/change", {
+                        method: "POST",
+                        body: formdt,
+                    })
                 });
 
                 const label = document.createElement("label");

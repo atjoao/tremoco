@@ -43,6 +43,7 @@ func engine() *gin.Engine {
 
 		api.POST("/playlist/create", controllers.CreatePlaylist)
 		api.GET("/playlist/get/:audioId", controllers.GetPlaylistsMusic)
+		api.POST("/playlist/change", controllers.ChangePlaylist)
 
 	}
 
