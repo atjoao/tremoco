@@ -14,7 +14,7 @@ const getSidebar = () => {
         })
 }
 
-const callModel_addPlaylist = async () => {
+const callModel_addToPlaylist = async (musicId) => {
     const div = document.createElement("div");
     div.classList.add("modal");
 
@@ -24,7 +24,42 @@ const callModel_addPlaylist = async () => {
     const div_container = document.createElement("div");
     div_container.classList.add("div_container");
 
-    const h1 = document.createElement("h1"); 
+    const h1 = document.createElement("h1");
+    h1.textContent = "Add to Playlist";
+
+    const close = document.createElement("span");
+    close.style.display = "block";
+    close.style.width = "min-content";
+    close.classList.add("close");
+    close.innerHTML = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="32px" height="32px">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M10.9393 12L6.9696 15.9697L8.03026 17.0304L12 13.0607L15.9697 17.0304L17.0304 15.9697L13.0607 12L17.0303 8.03039L15.9696 6.96973L12 10.9393L8.03038 6.96973L6.96972 8.03039L10.9393 12Z" fill="#FFF"></path>
+    </svg>`;
+    close.onclick = () => {
+        div.remove();
+    }
+
+    // .map el add event
+    
+
+    div_container.append(h1, close);
+
+    content.append(div_container);
+
+    div.appendChild(content);
+    document.body.appendChild(div);
+}
+
+const callModel_createPlaylist = async () => {
+    const div = document.createElement("div");
+    div.classList.add("modal");
+
+    const content = document.createElement("div");
+    content.classList.add("modal-content");
+
+    const div_container = document.createElement("div");
+    div_container.classList.add("div_container");
+
+    const h1 = document.createElement("h1");
     h1.textContent = "Create Playlist";
 
     const close = document.createElement("span");
@@ -125,22 +160,28 @@ const debouncedSearch = debounce(() => {
         performSearch(query);
     }
     if (query.length === 0) {
-        replaceContent("initial", null);
+        replaceContent("reset", null);
     }
 }, 300);
 
 searchForm.addEventListener("input", debouncedSearch);
 
+function clearText(value){
+    const element = document.createElement("div")
+    element.innerText = value
+    return element.innerHTML
+}
 
 function replaceContent(type, content){
     switch(type){
         case "search":{
+            document.querySelector("title").innerText = `Musica | Search ${clearText(searchForm.value)}`
 
             searchContainer.setAttribute("class", "")
             playlistContainer.setAttribute("class", "hidden")
             initalContainer.setAttribute("class", "hidden")
 
-            searchContainer.innerHTML = "";
+            searchContainer.innerHTML = `<h1 style="height: fit-content;display: block;width: 100%;">Search Results for ${clearText(searchForm.value)}</h1>`;
 
             content.map(music => {
                 const div = document.createElement("div");
@@ -159,6 +200,8 @@ function replaceContent(type, content){
                 provider.textContent = "Provider: "+ music.provider;
 
                 const divButtons = document.createElement("div");
+                divButtons.style.display = "flex";
+                divButtons.style.justifyContent = "space-between";
 
                 const button = document.createElement("button");
                 button.textContent = "Add to Playlist";
@@ -183,6 +226,8 @@ function replaceContent(type, content){
 
         }
         default:{
+            document.querySelector("title").innerText = `Musica | Home`
+
             initalContainer.setAttribute("class", "")
             searchContainer.setAttribute("class", "hidden")
             playlistContainer.setAttribute("class", "hidden")

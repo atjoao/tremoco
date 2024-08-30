@@ -1,22 +1,25 @@
 package functions
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"music/utils"
 	"net/http"
-	"net/url"
 	"os"
 	"regexp"
+	"strings"
 )
 
 func SearchVideo(name string) ([]utils.VideoSearch, error) {
 	db := utils.StartConn()
-	const ytUrl string = "https://www.youtube.com/results"
+	const ytUrl string = "https://music.youtube.com/youtubei/v1/search?prettyPrint=false"
 	allVideos := make([]utils.VideoSearch, 0)
 
+	var jsonStr = fmt.Sprintf(`{"context": {"client":{"clientName": "WEB_REMIX", "clientVersion": "1.20240827.03.00"}}, "params": "EgWKAQIIAWoQEAMQBBAJEAoQBRAREBAQFQ%%3D%%3D", "query": "%s"}`, name)
+
 	// SELECT album.cover, album_music.music_id, music.id, music.title FROM album_music, music,album WHERE music.title LIKE '%Full%' AND album_music.music_id = music.id AND album.id = album_music.album_id;
-	var sql string = "SELECT music.id, music.title FROM album_music, music, album WHERE music.title ~* $1 AND album_music.music_id = music.id AND album.id = album_music.album_id;"
+	var sql string = "SELECT music.id, music.title FROM album_music JOIN music ON album_music.music_id = music.id JOIN album ON album.id = album_music.album_id WHERE music.title ~* $1;"
 	rows, err := db.Query(sql, name)
 
 	if err != nil {
@@ -48,18 +51,7 @@ func SearchVideo(name string) ([]utils.VideoSearch, error) {
 	}
 
 	if os.Getenv("INCLUDE_YOUTUBE") == "true" {
-		parseUrl, err := url.Parse(ytUrl)
-
-		if err != nil {
-			return nil, err
-		}
-
-		values := parseUrl.Query()
-		values.Add("search_query", name)
-
-		parseUrl.RawQuery = values.Encode()
-
-		res, err := http.Get(parseUrl.String())
+		res, err := http.Post(ytUrl, "application/json", strings.NewReader(jsonStr))
 		if err != nil {
 			return nil, err
 		}
@@ -71,15 +63,14 @@ func SearchVideo(name string) ([]utils.VideoSearch, error) {
 			return nil, err
 		}
 
-		// thx
-		re := regexp.MustCompile(`"videoRenderer":\{"videoId":"([^"]{0,50})","thumbnail".{0,600}"title":\{"runs":\[\{"text":"([^"]{0,100})"`)
+		re := regexp.MustCompile(`"flexColumns":\[{"musicResponsiveListItemFlexColumnRenderer":\{"text":\{"runs":\[\{"text":"([^"]{0,100})".{0,600}"videoId":"([^"]{0,50})"`)
 		matches := re.FindAllStringSubmatch(string(body), -1)
 
 		for _, match := range matches {
 			videoData := &utils.VideoSearch{
-				Id:       match[1],
-				Title:    match[2],
-				ImageUrl: "https://i.ytimg.com/vi/" + match[1] + "/hqdefault.jpg",
+				Id:       match[2],
+				Title:    match[1],
+				ImageUrl: "https://i.ytimg.com/vi/" + match[2] + "/hqdefault.jpg",
 				Provider: "youtube",
 			}
 

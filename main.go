@@ -42,6 +42,7 @@ func engine() *gin.Engine {
 		api.GET("/cover/:audioId", controllers.GetAudioCover)
 
 		api.POST("/playlist/create", controllers.CreatePlaylist)
+		api.GET("/playlist/get/:audioId", controllers.GetPlaylistsMusic)
 
 	}
 
@@ -58,7 +59,7 @@ func engine() *gin.Engine {
 		const loadTemplate string = "dash.tmpl"
 		if sessions.Default(ctx).Get("userId") != nil {
 			ctx.HTML(200, loadTemplate, gin.H{
-				"Title":        "Inicio",
+				"Title":        "Home",
 				"loadTemplate": loadTemplate,
 				"username":     sessions.Default(ctx).Get("username"),
 			})

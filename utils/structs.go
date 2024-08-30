@@ -12,6 +12,12 @@ type Playlist struct {
 	MusicList    []VideoMeta
 }
 
+type PlayList_Music struct {
+	PlaylistId   int    `json:"playlistId"`
+	PlaylistName string `json:"playlistName"`
+	Exists       bool   `json:"exists"`
+}
+
 type VideoSearch struct {
 	Id       string `json:"id"`
 	Title    string `json:"title"`
