@@ -7,9 +7,9 @@ type User struct {
 }
 
 type Playlist struct {
-	PlaylistId   int
-	PlaylistName string
-	MusicList    []VideoMeta
+	PlaylistId   int         `json:"id"`
+	PlaylistName string      `json:"name"`
+	MusicList    []VideoMeta `json:"list"`
 }
 
 type PlayList_Music struct {
@@ -26,12 +26,12 @@ type VideoSearch struct {
 }
 
 type VideoMeta struct {
-	VideoId    string      `json:"videoid"`
-	Title      string      `json:"title"`
-	Author     string      `json:"author"`
-	Duration   string      `json:"duration"`
-	Location   string      `json:"location"`
-	Cover      string      `json:"cover"`
+	VideoId    string `json:"videoid"`
+	Title      string `json:"title"`
+	Author     string `json:"author"`
+	Duration   string `json:"duration"`
+	Location   string
+	Cover      string
 	Thumbnails []Thumbnail `json:"thumbnails"`
 	Streams    []Streams   `json:"streams"`
 }

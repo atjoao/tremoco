@@ -3,7 +3,10 @@ package controllers
 import (
 	"database/sql"
 	"fmt"
+	"music/functions"
 	"music/utils"
+	"os"
+	"regexp"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -135,24 +138,140 @@ func ChangePlaylist(ctx *gin.Context) {
 		return
 	}
 
-	// todo : check if music
-	// exists if so remove it
-	// check if music exists in playlist
-	// sql = "DELETE FROM playlist_music WHERE playlist_id = $1 AND music_id = $2"
-
-	sql = "INSERT INTO playlist_music (playlist_id, music_id) VALUES ($1, $2)"
-	_, err = db.Exec(sql, playlistId, audioId)
+	sql = "SELECT music_id FROM playlist_music WHERE playlist_id = $1 AND music_id = $2"
+	chkrows, err := db.Query(sql, playlistId, audioId)
 	if err != nil {
 		ctx.JSON(500, gin.H{
 			"status":  "SERVER_ERROR",
-			"message": "There was an error while adding music to playlist",
+			"message": "There was an error while fetching playlists",
 		})
 		return
+	}
+
+	if chkrows.Next() {
+		sql = "DELETE FROM playlist_music WHERE playlist_id = $1 AND music_id = $2"
+		_, err = db.Exec(sql, playlistId, audioId)
+		if err != nil {
+			ctx.JSON(500, gin.H{
+				"status":  "SERVER_ERROR",
+				"message": "There was an error while removing music from playlist",
+			})
+			return
+		}
+	} else {
+		sql = "INSERT INTO playlist_music (playlist_id, music_id) VALUES ($1, $2)"
+		_, err = db.Exec(sql, playlistId, audioId)
+		if err != nil {
+			fmt.Println("[erro! changeplaylist] ", err)
+			ctx.JSON(500, gin.H{
+				"status":  "SERVER_ERROR",
+				"message": "There was an error while adding music to playlist",
+			})
+			return
+		}
 	}
 
 	ctx.JSON(200, gin.H{
 		"status":  "OK",
 		"message": "Music added to playlist",
+	})
+
+}
+
+func GetPlaylist(ctx *gin.Context) {
+	var db *sql.DB = utils.StartConn()
+	var userId int = sessions.Default(ctx).Get("userId").(int)
+	var queryPlaylistId string = ctx.Param("playlistId")
+	idRegex := regexp.MustCompile(`local-[^\s]+`)
+
+	if queryPlaylistId == "" {
+		ctx.JSON(400, gin.H{
+			"status":  "MISSED_PARAMS",
+			"message": "playlistId is empty",
+		})
+		return
+	}
+
+	var sql string = "SELECT id, name FROM playlists WHERE userId = $1 AND id = $2"
+	rows, err := db.Query(sql, userId, queryPlaylistId)
+	if err != nil {
+		ctx.JSON(500, gin.H{
+			"status":  "SERVER_ERROR",
+			"message": "There was an error while fetching playlists",
+		})
+		return
+	}
+
+	if !rows.Next() {
+		ctx.JSON(403, gin.H{
+			"status":  "FORBIDDEN",
+			"message": "Playlist does not belong to user",
+		})
+		return
+	}
+
+	var playlistName string
+	var playlistId int
+	rows.Scan(&playlistId, &playlistName)
+
+	sql = "SELECT music_id FROM playlist_music WHERE playlist_id = $1"
+	playlistRows, err := db.Query(sql, playlistId)
+	if err != nil {
+		ctx.JSON(500, gin.H{
+			"status":  "SERVER_ERROR",
+			"message": "There was an error while fetching playlists",
+		})
+		return
+	}
+
+	var playlistMusics []utils.VideoMeta
+
+	for playlistRows.Next() {
+		var musicId string
+		err := playlistRows.Scan(&musicId)
+		if err != nil {
+			continue
+		}
+
+		if idRegex.MatchString(musicId) {
+			response := functions.LocalVideoMeta(musicId)
+			if response == nil {
+				continue
+			}
+
+			playlistMusics = append(playlistMusics, *response)
+		} else if os.Getenv("INCLUDE_YOUTUBE") == "true" {
+
+			response, metas, err := functions.VideoMeta(musicId, false)
+
+			if len(metas) == 0 {
+				continue
+			}
+
+			if err != nil {
+				fmt.Println("[GETPLAYLIST/err] ", err)
+			}
+
+			music := &utils.VideoMeta{
+				VideoId:    response.VideoDetails.VideoId,
+				Title:      response.VideoDetails.Title,
+				Author:     response.VideoDetails.Author,
+				Thumbnails: response.VideoDetails.Thumbnail.Thumbnails,
+				Duration:   response.VideoDetails.LengthSeconds,
+				Streams:    metas,
+			}
+
+			playlistMusics = append(playlistMusics, *music)
+		}
+	}
+
+	ctx.JSON(200, gin.H{
+		"status": "OK",
+		"playlist": &utils.Playlist{
+			PlaylistId:   playlistId,
+			PlaylistName: playlistName,
+			MusicList:    playlistMusics,
+		},
 	})
 
 }

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+<div class="modal">
+    <div class="modal-content">
+        <div class="div_container">
+            <h1>Add to Playlist</h1>
+            <span onclick="closeModal();" class="close" style="display: block; width: min-content;">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="32px" height="32px">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M10.9393 12L6.9696 15.9697L8.03026 17.0304L12 13.0607L15.9697 17.0304L17.0304 15.9697L13.0607 12L17.0303 8.03039L15.9696 6.96973L12 10.9393L8.03038 6.96973L6.96972 8.03039L10.9393 12Z" fill="#FFF"></path>
+                </svg>
+            </span>
+        </div>
+        <div id="checkboxes"></div>
+    </div>
+</div>
+
+
+<script>
+    fetch("/api/playlist/get/"+ globalThis.addToPlaylistMusicId)
+        .then((r)=> r.json())
+        .then((resp)=> {
+            resp.playlists.forEach((playlist)=> {
+                console.log(playlist)
+                // create a selector
+                const input = document.createElement("input");
+                input.type = "checkbox";
+                input.id = playlist.playlistId;
+                input.checked = playlist.exists;
+
+                const formdt = new FormData();
+                formdt.append("audioId", globalThis.addToPlaylistMusicId);
+                formdt.append("playlistId", playlist.playlistId);
+
+                input.addEventListener("change", (e) => {
+                    fetch("/api/playlist/change", {
+                        method: "POST",
+                        body: formdt,
+                    })
+                });
+
+                const label = document.createElement("label");
+                label.htmlFor = playlist.playlistId;
+                label.textContent = playlist.playlistName;
+
+                const div = document.createElement("div");
+                div.append(input, label);
+
+                checkboxes.append(div);
+            })
+        }).catch((e)=> {
+            console.error(e)
+        })
+</script>
+</body>
+</html>
+
