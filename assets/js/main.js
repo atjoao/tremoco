@@ -119,6 +119,7 @@ function clearText(value){
 }
 
 function replaceContent(type, content){
+    
     switch(type){
         case "search":{
             document.querySelector("title").innerText = `Musica | Search ${clearText(searchForm.value)}`
@@ -141,6 +142,9 @@ function replaceContent(type, content){
                 p.classList.add("title");
                 p.textContent = music.title;
 
+                const author = document.createElement("p");
+                author.textContent = "Author: "+ music.author;
+
                 const provider = document.createElement("p");
                 provider.textContent = "Provider: "+ music.provider;
 
@@ -160,23 +164,28 @@ function replaceContent(type, content){
 
                 divButtons.append(button, play);
 
-                div.append(img, p, provider, divButtons);
+                div.append(img, p,author, provider, divButtons);
 
                 searchContainer.appendChild(div);
             })
 
+
+
             break;
         }
         case "playlist":{
+            let playlist;
             playlistContainer.setAttribute("class", "")
             initalContainer.setAttribute("class", "hidden")
             searchContainer.setAttribute("class", "hidden")
 
             playlistContainer.innerHTML = ""
+            searchForm.value = null;
+            searchForm.innerText = null;
 
             fetch("/api/playlist/"+content).then((r)=> r.json())
             .then((resp)=>{
-                const playlist = resp.playlist
+                playlist = resp.playlist
                 console.log(playlist)
 
                 const e = document.createElement('div');
@@ -187,7 +196,7 @@ function replaceContent(type, content){
                 const e1 = document.createElement('div');
                 
                 const e2 = document.createElement("img");
-                e2.src = 'source';
+                e2.src = playlist.image == "" ? "assets/images/default_album.png" : playlist.image;
                 e1.appendChild(e2);
 
                 const e3 = document.createElement('div');
@@ -203,7 +212,7 @@ function replaceContent(type, content){
                 
                 e0.appendChild(e1);
                 const e6 = document.createElement('div');
-                
+
                 const e7 = document.createElement('div');
                 e7.setAttribute('class', 'buttons');
 
@@ -246,6 +255,17 @@ function replaceContent(type, content){
 
             })
 
+            const divMusic = `
+                <div data-musicid=%%>
+                    <img src=%image%>
+                    <div>
+                        <p>%song:name%</p>
+                        <p>%song:author%</p>
+                    </div>
+                    <p>%duration%</p>
+                </div>
+            `
+
             break;
 
         }
@@ -255,6 +275,9 @@ function replaceContent(type, content){
             initalContainer.setAttribute("class", "")
             searchContainer.setAttribute("class", "hidden")
             playlistContainer.setAttribute("class", "hidden")
+
+            searchForm.value = null;
+            searchForm.innerText = null;
 
             break;
 

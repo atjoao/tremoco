@@ -7,6 +7,7 @@ import (
 	"music/utils"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -192,9 +193,10 @@ func GetPlaylist(ctx *gin.Context) {
 		return
 	}
 
-	var sql string = "SELECT id, name FROM playlists WHERE userId = $1 AND id = $2"
+	var sql string = "SELECT id, name, image FROM playlists WHERE userId = $1 AND id = $2"
 	rows, err := db.Query(sql, userId, queryPlaylistId)
 	if err != nil {
+		fmt.Println("[GetPlaylist/err] ", err)
 		ctx.JSON(500, gin.H{
 			"status":  "SERVER_ERROR",
 			"message": "There was an error while fetching playlists",
@@ -212,7 +214,8 @@ func GetPlaylist(ctx *gin.Context) {
 
 	var playlistName string
 	var playlistId int
-	rows.Scan(&playlistId, &playlistName)
+	var playlistImage string
+	rows.Scan(&playlistId, &playlistName, &playlistImage)
 
 	sql = "SELECT music_id FROM playlist_music WHERE playlist_id = $1"
 	playlistRows, err := db.Query(sql, playlistId)
@@ -252,10 +255,12 @@ func GetPlaylist(ctx *gin.Context) {
 				fmt.Println("[GETPLAYLIST/err] ", err)
 			}
 
+			author := strings.Split(response.VideoDetails.Author, "-")
+
 			music := &utils.VideoMeta{
 				VideoId:    response.VideoDetails.VideoId,
 				Title:      response.VideoDetails.Title,
-				Author:     response.VideoDetails.Author,
+				Author:     strings.Trim(author[0], " "),
 				Thumbnails: response.VideoDetails.Thumbnail.Thumbnails,
 				Duration:   response.VideoDetails.LengthSeconds,
 				Streams:    metas,
@@ -268,9 +273,10 @@ func GetPlaylist(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{
 		"status": "OK",
 		"playlist": &utils.Playlist{
-			PlaylistId:   playlistId,
-			PlaylistName: playlistName,
-			MusicList:    playlistMusics,
+			PlaylistImage: playlistImage,
+			PlaylistId:    playlistId,
+			PlaylistName:  playlistName,
+			MusicList:     playlistMusics,
 		},
 	})
 
