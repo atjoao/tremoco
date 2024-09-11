@@ -183,6 +183,17 @@ function replaceContent(type, content){
             searchForm.value = null;
             searchForm.innerText = null;
 
+            const divMusic = `
+                <div data-musicid=%song:id%>
+                    <img src=%image%>
+                    <div>
+                        <p>%song:name%</p>
+                        <p>%song:author%</p>
+                    </div>
+                    <p>%duration%</p>
+                </div>
+            `
+
             fetch("/api/playlist/"+content).then((r)=> r.json())
             .then((resp)=>{
                 playlist = resp.playlist
@@ -253,18 +264,18 @@ function replaceContent(type, content){
 
                 playlistContainer.appendChild(e0)
 
+                for (let index = 0; index < playlist.list.length; index++) {
+                    const element = playlist.list[index];
+                    playlistContainer.insertAdjacentHTML("beforeend", 
+                    divMusic
+                        .replace("%image%", element.thumbnails[0].url)
+                        .replace("%song:id%", element.videoid)
+                        .replace("%song:name%", element.title)
+                        .replace("%song:author%", element.author)
+                        .replace("%duration%", element.duration)
+                    )
+                }
             })
-
-            const divMusic = `
-                <div data-musicid=%%>
-                    <img src=%image%>
-                    <div>
-                        <p>%song:name%</p>
-                        <p>%song:author%</p>
-                    </div>
-                    <p>%duration%</p>
-                </div>
-            `
 
             break;
 
