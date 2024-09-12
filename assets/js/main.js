@@ -1,3 +1,5 @@
+let playlist;
+
 const pageContent = document.getElementById("content");
 const searchContainer = document.getElementById("search");
 const initalContainer = document.getElementById("initial");
@@ -67,6 +69,7 @@ window.createModal = (modal) => {
 
 
 document.addEventListener("DOMContentLoaded", () => {
+    // fill localstorage with data
     getSidebar();
 });
 
@@ -117,6 +120,8 @@ function clearText(value){
     element.innerText = value
     return element.innerHTML
 }
+
+function fmtMSS(s){return(s-(s%=60))/60+(9<s?':':':0')+s}
 
 function replaceContent(type, content){
     
@@ -174,7 +179,6 @@ function replaceContent(type, content){
             break;
         }
         case "playlist":{
-            let playlist;
             playlistContainer.setAttribute("class", "")
             initalContainer.setAttribute("class", "hidden")
             searchContainer.setAttribute("class", "hidden")
@@ -184,11 +188,13 @@ function replaceContent(type, content){
             searchForm.innerText = null;
 
             const divMusic = `
-                <div data-musicid=%song:id%>
-                    <img src=%image%>
+                <div data-musicid=%song:id% class="music_column">
                     <div>
-                        <p>%song:name%</p>
-                        <p>%song:author%</p>
+                        <img src=%image%>
+                        <div>
+                            <p id="title">%song:name%</p>
+                            <p id="author">%song:author%</p>
+                        </div>
                     </div>
                     <p>%duration%</p>
                 </div>
@@ -196,6 +202,7 @@ function replaceContent(type, content){
 
             fetch("/api/playlist/"+content).then((r)=> r.json())
             .then((resp)=>{
+                const musicContainer = document.createElement("div")
                 playlist = resp.playlist
                 console.log(playlist)
 
@@ -208,6 +215,10 @@ function replaceContent(type, content){
                 
                 const e2 = document.createElement("img");
                 e2.src = playlist.image == "" ? "assets/images/default_album.png" : playlist.image;
+                e2.width = 128;
+                e2.height = 128;
+                e2.style.objectFit = "cover";
+
                 e1.appendChild(e2);
 
                 const e3 = document.createElement('div');
@@ -228,9 +239,12 @@ function replaceContent(type, content){
                 e7.setAttribute('class', 'buttons');
 
                 const e8 = document.createElement('span');
-                e8.innerHTML = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                e8.innerHTML = `<svg data-playlist=${content} id="PlaylistPlay" width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M16.6582 9.28638C18.098 10.1862 18.8178 10.6361 19.0647 11.2122C19.2803 11.7152 19.2803 12.2847 19.0647 12.7878C18.8178 13.3638 18.098 13.8137 16.6582 14.7136L9.896 18.94C8.29805 19.9387 7.49907 20.4381 6.83973 20.385C6.26501 20.3388 5.73818 20.0469 5.3944 19.584C5 19.053 5 18.1108 5 16.2264V7.77357C5 5.88919 5 4.94701 5.3944 4.41598C5.73818 3.9531 6.26501 3.66111 6.83973 3.6149C7.49907 3.5619 8.29805 4.06126 9.896 5.05998L16.6582 9.28638Z" stroke="#000000" stroke-width="2" stroke-linejoin="round"/>
                                 </svg>`;
+                e8.addEventListener("click", function (e) {
+                    if(playlist.list) sendToQueue(playlist.list, true)
+                })
                 e7.appendChild(e8);
                 
                 const e9 = document.createElement('span');
@@ -251,12 +265,32 @@ function replaceContent(type, content){
                 e7.appendChild(e11); */
                 
                 e6.appendChild(e7);
+                e6.style.justifyContent = "space-between"
 
                 const e12 = document.createElement('div');
                 const e13 = document.createElement("input");
                 e13.type = "text";
-                e13.setAttribute('name', '""');
-                e13.setAttribute('id', '""');
+                e13.setAttribute('name', "search");
+                e13.setAttribute('id', "playlistSearch");
+                e13.placeholder = "Search inside the playlist"
+                e13.addEventListener("keyup", function (e) {
+                    if (e.key.includes("Arrow")) return;
+                    
+                    const filterValue = e13.value.toLowerCase();
+
+                    const musicChilds = Array.from(musicContainer.children);
+                    
+                    musicChilds.forEach(musicItem => {
+                        const musicName = musicItem.querySelector("p#title").textContent.toLowerCase();
+                        const authorName = musicItem.querySelector("p#author").textContent.toLowerCase();
+                        if (musicName.includes(filterValue) || authorName.includes(filterValue)) {
+                            musicItem.style.display = "flex";
+                        } else {
+                            musicItem.style.display = "none";
+                        }
+                    });
+                })
+
                 
                 e12.appendChild(e13);
                 e6.appendChild(e12);
@@ -264,21 +298,25 @@ function replaceContent(type, content){
 
                 playlistContainer.appendChild(e0)
 
+                musicContainer.setAttribute("class", "music_list")
+
                 for (let index = 0; index < playlist.list.length; index++) {
                     const element = playlist.list[index];
-                    playlistContainer.insertAdjacentHTML("beforeend", 
+                    musicContainer.insertAdjacentHTML("beforeend", 
                     divMusic
                         .replace("%image%", element.thumbnails[0].url)
                         .replace("%song:id%", element.videoid)
                         .replace("%song:name%", element.title)
                         .replace("%song:author%", element.author)
-                        .replace("%duration%", element.duration)
+                        .replace("%duration%", fmtMSS(element.duration))
                     )
                 }
+
+                playlistContainer.appendChild(musicContainer)
+                
             })
 
             break;
-
         }
         default:{
             document.querySelector("title").innerText = `Musica | Home`

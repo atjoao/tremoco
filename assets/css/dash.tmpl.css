@@ -227,3 +227,93 @@
     cursor: pointer;
     border-radius: 5px;
 }
+
+.content #playlist .head{
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+}
+
+.content #playlist .head> div{
+    display: flex;
+    align-items: center;
+
+}
+
+.content #playlist .head> div:first-child{
+    gap: 10px;
+}
+
+
+.content #playlist .music_column{
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.content #playlist .music_column div:first-child{
+    display: inherit;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.content #playlist .music_column img{
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+
+.content #playlist .music_column img:hover{
+    /**
+    todooo!!!
+    */
+}
+
+.content #playlist .head div:nth-child(2){
+    padding-bottom: 10px;
+
+}
+
+.content #playlist .buttons{
+    display: flex;
+    gap: 10px;
+}
+
+.content #playlist .buttons svg {
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+
+    transition: opacity .3s ease-in-out;
+}
+
+.content #playlist .buttons svg#PlaylistPlay{
+    background-color: var(--primary);
+    border-radius: 10px;
+}
+.content #playlist .buttons svg:not(#PlaylistPlay) path{
+    fill: white;
+}
+
+.content #playlist .buttons svg:hover{
+    opacity: 0.8;
+}
+
+.content #playlist .head input {
+    width: 100%;
+  background-color: var(--secondary);
+  border: none;
+  padding: 5px;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+.content #playlist .head input {
+    outline: 1px solid var(--accent);
+    border: none;
+}
+
+
+
