@@ -6,7 +6,7 @@
     <div class="main-content" id="main">
         <div class="top">
             <input type="search" name="" id="searchForm" placeholder="Search for a song">
-            <p>{{ .username }}</p>    
+            <p>{{ .username }}</p>
         </div>
 
         <section class="content" id="content" style="overflow: auto;">
@@ -23,19 +23,24 @@
 
 <div class="player">
     <div class="line"></div>
-    <div class="player-content">
-        <div>
-            <img src="" alt="">
+    <div class="player-content" style="display: flex; justify-content: space-between;height: 100%;align-items: center;padding: 10px;">
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <img id="player-image" style="object-fit: cover;" src="" alt="" width="64px" height="64px">
             <div>
-                <p>msuci</p>
-                <p>authro</p>
+                <p id="player-title"></p>
+                <p id="player-author"></p>
             </div>
         </div>
-        <span>repeat</span>
-        <span>back</span>
-        <span>pause/play</span>
-        <span>next</span>
-        <span>shuffle</span>
+        <div>
+            <span>repeat</span>
+            <span>back</span>
+            <span>pause/play</span>
+            <span>next</span>
+            <span>shuffle</span>    
+        </div>
+        <div>
+            <input type="range" id="volumeSlider">
+        </div>
     </div>
 </div>
 

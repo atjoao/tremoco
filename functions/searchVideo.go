@@ -19,7 +19,7 @@ func SearchVideo(name string) ([]utils.VideoSearch, error) {
 	var jsonStr = fmt.Sprintf(`{"context": {"client":{"clientName": "WEB_REMIX", "clientVersion": "1.20240827.03.00"}}, "params": "EgWKAQIIAWoQEAMQBBAJEAoQBRAREBAQFQ%%3D%%3D", "query": "%s"}`, name)
 
 	// SELECT album.cover, album_music.music_id, music.id, music.title FROM album_music, music,album WHERE music.title LIKE '%Full%' AND album_music.music_id = music.id AND album.id = album_music.album_id;
-	var sql string = "SELECT music.id, music.title FROM album_music JOIN music ON album_music.music_id = music.id JOIN album ON album.id = album_music.album_id WHERE music.title ~* $1;"
+	var sql string = "SELECT music.id, music.title, music.author FROM album_music JOIN music ON album_music.music_id = music.id JOIN album ON album.id = album_music.album_id WHERE music.title ~* $1;"
 	rows, err := db.Query(sql, name)
 
 	if err != nil {
@@ -29,7 +29,7 @@ func SearchVideo(name string) ([]utils.VideoSearch, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var musicListDb utils.MusicListDb
-		err := rows.Scan(&musicListDb.Music_id, &musicListDb.Title)
+		err := rows.Scan(&musicListDb.Music_id, &musicListDb.Title, &musicListDb.Author)
 		musicListDb.Cover = "/api/cover/" + musicListDb.Music_id
 
 		if err != nil {
@@ -40,6 +40,7 @@ func SearchVideo(name string) ([]utils.VideoSearch, error) {
 			Id:       musicListDb.Music_id,
 			Title:    musicListDb.Title,
 			ImageUrl: musicListDb.Cover,
+			Author:   musicListDb.Author,
 			Provider: "local",
 		}
 		allVideos = append(allVideos, *videoData)

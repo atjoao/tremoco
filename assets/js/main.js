@@ -174,8 +174,6 @@ function replaceContent(type, content){
                 searchContainer.appendChild(div);
             })
 
-
-
             break;
         }
         case "playlist":{
@@ -299,17 +297,18 @@ function replaceContent(type, content){
                 playlistContainer.appendChild(e0)
 
                 musicContainer.setAttribute("class", "music_list")
-
-                for (let index = 0; index < playlist.list.length; index++) {
-                    const element = playlist.list[index];
-                    musicContainer.insertAdjacentHTML("beforeend", 
-                    divMusic
-                        .replace("%image%", element.thumbnails[0].url)
-                        .replace("%song:id%", element.videoid)
-                        .replace("%song:name%", element.title)
-                        .replace("%song:author%", element.author)
-                        .replace("%duration%", fmtMSS(element.duration))
-                    )
+                if (playlist.list != null){
+                    for (let index = 0; index < playlist.list.length; index++) {
+                        const element = playlist.list[index];
+                        musicContainer.insertAdjacentHTML("beforeend", 
+                        divMusic
+                            .replace("%image%", element.thumbnails[0].url)
+                            .replace("%song:id%", element.videoid)
+                            .replace("%song:name%", element.title)
+                            .replace("%song:author%", element.author)
+                            .replace("%duration%", fmtMSS(element.duration))
+                        )
+                    }    
                 }
 
                 playlistContainer.appendChild(musicContainer)

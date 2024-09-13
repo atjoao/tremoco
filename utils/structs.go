@@ -147,4 +147,5 @@ type MusicListDb struct {
 	Music_id string
 	Id       string
 	Title    string
+	Author   string
 }
