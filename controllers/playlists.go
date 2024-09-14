@@ -281,3 +281,62 @@ func GetPlaylist(ctx *gin.Context) {
 	})
 
 }
+
+func DeletePlaylist(ctx *gin.Context) {
+	var db *sql.DB = utils.StartConn()
+
+	var userId int = sessions.Default(ctx).Get("userId").(int)
+	var queryPlaylistId string = ctx.Param("playlistId")
+
+	if queryPlaylistId == "" {
+		ctx.JSON(400, gin.H{
+			"status":  "MISSED_PARAMS",
+			"message": "playlistId is empty",
+		})
+		return
+	}
+
+	var sql string = "SELECT id FROM playlists WHERE userId = $1 AND id = $2"
+	rows, err := db.Query(sql, userId, queryPlaylistId)
+	if err != nil {
+		ctx.JSON(500, gin.H{
+			"status":  "SERVER_ERROR",
+			"message": "There was an error while fetching playlists",
+		})
+		return
+	}
+
+	if !rows.Next() {
+		ctx.JSON(403, gin.H{
+			"status":  "FORBIDDEN",
+			"message": "Playlist does not belong to user",
+		})
+		return
+	}
+
+	sql = "DELETE FROM playlist_music WHERE playlist_id = $1"
+	_, err = db.Exec(sql, queryPlaylistId)
+	if err != nil {
+		ctx.JSON(500, gin.H{
+			"status":  "SERVER_ERROR",
+			"message": "There was an error while deleting playlist",
+		})
+		return
+	}
+
+	sql = "DELETE FROM playlists WHERE id = $1"
+	_, err = db.Exec(sql, queryPlaylistId)
+	if err != nil {
+		ctx.JSON(500, gin.H{
+			"status":  "SERVER_ERROR",
+			"message": "There was an error while deleting playlist",
+		})
+		return
+	}
+
+	ctx.JSON(200, gin.H{
+		"status":  "OK",
+		"message": "Playlist deleted",
+	})
+
+}

@@ -45,7 +45,7 @@ func engine() *gin.Engine {
 		api.GET("/playlist/get/:audioId", controllers.GetPlaylistsMusic)
 		api.POST("/playlist/change", controllers.ChangePlaylist)
 		api.GET("/playlist/:playlistId", controllers.GetPlaylist)
-
+		api.DELETE("/playlist/delete/:playlistId", controllers.DeletePlaylist)
 	}
 
 	auth := app.Group("/auth")

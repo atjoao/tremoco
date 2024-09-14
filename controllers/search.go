@@ -6,6 +6,7 @@ import (
 	"music/utils"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -78,12 +79,14 @@ func VideoDataStream(ctx *gin.Context) {
 			return
 		}
 
+		author := strings.Split(response.VideoDetails.Author, "-")
+
 		ctx.PureJSON(200, gin.H{
 			"status": "OK",
 			"data": &utils.VideoMeta{
 				VideoId:    response.VideoDetails.VideoId,
 				Title:      response.VideoDetails.Title,
-				Author:     response.VideoDetails.Author,
+				Author:     strings.Trim(author[0], " "),
 				Thumbnails: response.VideoDetails.Thumbnail.Thumbnails,
 				Duration:   response.VideoDetails.LengthSeconds,
 				Streams:    metas,
