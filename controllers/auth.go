@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"database/sql"
 	"music/utils"
 
 	"github.com/gin-contrib/sessions"
@@ -37,7 +36,7 @@ func AuthRequired(ctx *gin.Context) {
 
 func Login(ctx *gin.Context) {
 	var err error
-	var db *sql.DB = utils.StartConn()
+	db := utils.StartConn()
 
 	const sql string = "SELECT username, passwordHash, id FROM users WHERE username = $1"
 	var username string = ctx.PostForm("username")
@@ -88,7 +87,7 @@ func Login(ctx *gin.Context) {
 
 func Register(ctx *gin.Context) {
 	var err error
-	var db *sql.DB = utils.StartConn()
+	db := utils.StartConn()
 
 	const sql string = "INSERT INTO users (username, passwordHash) VALUES ($1, $2) RETURNING id;"
 

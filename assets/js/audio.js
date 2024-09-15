@@ -42,17 +42,19 @@ playerShuffle.addEventListener("click", () => {
     toggleShuffle();
 });
 
-function toggleShuffle() {
-    if (audio.paused) return;
+function toggleShuffle(force) {
+    if (audio.paused && !force) return;
+
+    if (queue.originalQueue.length == 1 ) return;
 
     queue.shuffle = !queue.shuffle;
     
     if (queue.shuffle) {
         shuffleQueue();
-        playerShuffle.children[0].children[0].style.stroke = "white"; // Indicate shuffle is on
+        playerShuffle.children[0].children[0].style.stroke = "white";
     } else {
         resetQueueOrder();
-        playerShuffle.children[0].children[0].style.stroke = "gray"; // Indicate shuffle is off
+        playerShuffle.children[0].children[0].style.stroke = "gray";
     }
 }
 
@@ -124,7 +126,7 @@ audio.onplay = () => {
         thumb = new URL(window.location)
         thumb.pathname = queue.currentSong.thumbnails[0].url
     } else {
-        thumb = queue.currentSong.thumbnails[0].url
+        thumb = "/api/proxy?url=" + btoa(queue.currentSong.thumbnails[0].url)
     }
     
     navigator.mediaSession.metadata = new MediaMetadata({
@@ -171,10 +173,6 @@ audio.ontimeupdate = (e) => {
 audio.onended = () => {
     if (audio.loop) return;
     nextTrack();
-    // next track
-    // if false clear div content
-    // if true start next audio
-    // if looping return;
 };
 
 function sendToQueue(musicList, reset){
@@ -210,11 +208,11 @@ function startQueue(){
         for (let index = 0; index < streams.length; index++) {
             const element = streams[index];
             if (element.audioQuality.includes("MEDIUM") && element.mimeType.includes("codecs=\"opus\"")){
-                audio.src = element.streamUrl
+                audio.src = element.streamUrl.includes("https://") ? "/api/proxy?url=" + btoa(element.streamUrl) : element.streamUrl
             } else if (element.audioQuality.includes("MEDIUM") && element.mimeType.includes("codecs=\"mp4a.40.5\"")){
-                audio.src = element.streamUrl
+                audio.src = element.streamUrl.includes("https://") ? "/api/proxy?url=" + btoa(element.streamUrl) : element.streamUrl
             } else {
-                audio.src = streams[0]
+                audio.src = streams[0].streamUrl.includes("https://") ? "/api/proxy?url=" + btoa(streams[0].streamUrl) : streams[0].streamUrl
             }
         }
     }
@@ -253,7 +251,7 @@ function nextTrack(){
         queue.position = 0;
 
         if (queue.shuffle) {
-            toggleShuffle();
+            toggleShuffle(true);
         }
 
         return;
@@ -273,11 +271,11 @@ function nextTrack(){
         for (let index = 0; index < streams.length; index++) {
             const element = streams[index];
             if (element.audioQuality.includes("MEDIUM") && element.mimeType.includes("codecs=\"opus\"")){
-                audio.src = element.streamUrl
-            } else if (element.audioQuality.includes("MEDIUM") && element.mimeType.includes("audio/mp4;")){
-                audio.src = element.streamUrl
+                audio.src = element.streamUrl.includes("https://") ? "/api/proxy?url=" + btoa(element.streamUrl) : element.streamUrl
+            } else if (element.audioQuality.includes("MEDIUM") && element.mimeType.includes("codecs=\"mp4a.40.5\"")){
+                audio.src = element.streamUrl.includes("https://") ? "/api/proxy?url=" + btoa(element.streamUrl) : element.streamUrl
             } else {
-                audio.src = streams[0]
+                audio.src = streams[0].streamUrl.includes("https://") ? "/api/proxy?url=" + btoa(streams[0].streamUrl) : streams[0].streamUrl
             }
         }
     }
@@ -308,11 +306,11 @@ function backTrack(){
         for (let index = 0; index < streams.length; index++) {
             const element = streams[index];
             if (element.audioQuality.includes("MEDIUM") && element.mimeType.includes("codecs=\"opus\"")){
-                audio.src = element.streamUrl
-            } else if (element.audioQuality.includes("MEDIUM") && element.mimeType.includes("audio/mp4;")){
-                audio.src = element.streamUrl
+                audio.src = element.streamUrl.includes("https://") ? "/api/proxy?url=" + btoa(element.streamUrl) : element.streamUrl
+            } else if (element.audioQuality.includes("MEDIUM") && element.mimeType.includes("codecs=\"mp4a.40.5\"")){
+                audio.src = element.streamUrl.includes("https://") ? "/api/proxy?url=" + btoa(element.streamUrl) : element.streamUrl
             } else {
-                audio.src = streams[0]
+                audio.src = streams[0].streamUrl.includes("https://") ? "/api/proxy?url=" + btoa(streams[0].streamUrl) : streams[0].streamUrl
             }
         }
     }
@@ -323,6 +321,8 @@ function backTrack(){
 
     audio.play();
 }
+
+// bad impl
 
 function shuffleQueue() {
     const unplayed = queue.currentQueue.slice(queue.position + 1); // Get unplayed songs (after current song)

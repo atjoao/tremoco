@@ -46,6 +46,10 @@ func engine() *gin.Engine {
 		api.POST("/playlist/change", controllers.ChangePlaylist)
 		api.GET("/playlist/:playlistId", controllers.GetPlaylist)
 		api.DELETE("/playlist/delete/:playlistId", controllers.DeletePlaylist)
+		api.POST("/playlist/edit/:playlistId", controllers.EditPlaylist)
+
+		api.GET("/proxy", controllers.ProxyContent)
+
 	}
 
 	auth := app.Group("/auth")
@@ -137,6 +141,7 @@ func main() {
 	}
 
 	functions.ProcessAudioFiles()
+	functions.RemoveMusicFromDb()
 
 	app := engine()
 	if err := app.Run(":3000"); err != nil {

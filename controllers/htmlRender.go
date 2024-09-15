@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"database/sql"
 	"log"
 	"music/utils"
 
@@ -10,10 +9,10 @@ import (
 )
 
 func Sidebar(ctx *gin.Context) {
-	var db *sql.DB = utils.StartConn()
+	db := utils.StartConn()
 	var userId int = sessions.Default(ctx).Get("userId").(int)
 
-	const sql string = "SELECT id, name FROM playlists WHERE userId = $1"
+	const sql string = "SELECT id, name, image FROM playlists WHERE userId = $1"
 
 	rows, err := db.Query(sql, userId)
 	if err != nil {
@@ -30,7 +29,7 @@ func Sidebar(ctx *gin.Context) {
 
 	for rows.Next() {
 		var playlist utils.Playlist
-		err = rows.Scan(&playlist.PlaylistId, &playlist.PlaylistName)
+		err = rows.Scan(&playlist.PlaylistId, &playlist.PlaylistName, &playlist.PlaylistImage)
 		if err != nil {
 			log.Println("Error on playlist scan > ", err, "for user id > ", userId)
 			continue

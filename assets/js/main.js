@@ -21,7 +21,7 @@ window.executeForm = (form) => {
         method: form.method,
         body: new FormData(form)
     }).then(r => {
-        if (!r.ok) throw new Error("An error occured while executing this request");
+        if (!r.ok) throw new Error("An error occured while executing this request\n" + r.statusText);
         return r.text();
     }).then(resp => {
         closeModal();
@@ -151,7 +151,7 @@ function replaceContent(type, content){
                 div.dataset.musicid = music.id;
                 
                 const img = document.createElement("img");
-                img.src = music.thumbnail;
+                img.src = music.thumbnail.includes("https://") ? "/api/proxy?url=" + btoa(music.thumbnail) : music.thumbnail;
                 img.alt = "Thumbnail";
 
                 const p = document.createElement("p");
@@ -209,7 +209,7 @@ function replaceContent(type, content){
                         <div class="relative">
                             <div id="PlayOverlay">
                                 <svg id="playbtn" width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M16.6582 9.28638C18.098 10.1862 18.8178 10.6361 19.0647 11.2122C19.2803 11.7152 19.2803 12.2847 19.0647 12.7878C18.8178 13.3638 18.098 13.8137 16.6582 14.7136L9.896 18.94C8.29805 19.9387 7.49907 20.4381 6.83973 20.385C6.26501 20.3388 5.73818 20.0469 5.3944 19.584C5 19.053 5 18.1108 5 16.2264V7.77357C5 5.88919 5 4.94701 5.3944 4.41598C5.73818 3.9531 6.26501 3.66111 6.83973 3.6149C7.49907 3.5619 8.29805 4.06126 9.896 5.05998L16.6582 9.28638Z" stroke="#FFF" fill="#FFF" stroke-width="2" stroke-linejoin="round"/>
+                                    <path d="M16.6582 9.28638C18.098 10.1862 18.8178 10.6361 19.0647 11.2122C19.2803 11.7152 19.2803 12.2847 19.0647 12.7878C18.8178 13.3638 18.098 13.8137 16.6582 14.7136L9.896 18.94C8.29805 19.9387 7.49907 20.4381 6.83973 20.385C6.26501 20.3388 5.73818 20.0469 5.3944 19.584C5 19.053 5 18.1108 5 16.2264V7.77357C5 5.88919 5 4.94701 5.3944 4.41598C5.73818 3.9531 6.26501 3.66111 6.83973 3.6149C7.49907 3.5619 8.29805 4.06126 9.896 5.05998L16.6582 9.28638Z" stroke="#FFF" fill="#FFF" stroke-width="2" stroke-linejoin="round"/>
                                 </svg>
                             </div>
                             <img src=%image%>
@@ -251,6 +251,7 @@ function replaceContent(type, content){
                 e2.src = playlist.image == "" ? "assets/images/default_album.png" : playlist.image;
                 e2.width = 128;
                 e2.height = 128;
+                e2.style.borderRadius = "10px";
                 e2.style.objectFit = "cover";
 
                 e1.appendChild(e2);
@@ -280,7 +281,27 @@ function replaceContent(type, content){
                     if(playlist.list) sendToQueue(playlist.list, true)
                 })
                 e7.appendChild(e8);
-                
+
+                const e10 = document.createElement('span');
+                e10.innerHTML = `<svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-width="2" stroke-linejoin="round" stroke="#FFF" stroke-linecap="round" fill="black" style="fill: black !important;" d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6"></path>
+                                </svg>`;
+                e10.addEventListener("click", function (e) {
+                    createModal("deletePlaylist.html");
+                })
+                e7.appendChild(e10);
+
+                const e47 = document.createElement('span');
+                e47.innerHTML = `<svg fill="#000000" width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M12.3023235,7.94519388 L4.69610276,15.549589 C4.29095108,15.9079238 4.04030835,16.4092335 4,16.8678295 L4,20.0029438 L7.06398288,20.004826 C7.5982069,19.9670062 8.09548693,19.7183782 8.49479322,19.2616227 L16.0567001,11.6997158 L12.3023235,7.94519388 Z M13.7167068,6.53115006 L17.4709137,10.2855022 L19.8647941,7.89162181 C19.9513987,7.80501747 20.0000526,7.68755666 20.0000526,7.56507948 C20.0000526,7.4426023 19.9513987,7.32514149 19.8647932,7.23853626 L16.7611243,4.13485646 C16.6754884,4.04854589 16.5589355,4 16.43735,4 C16.3157645,4 16.1992116,4.04854589 16.1135757,4.13485646 L13.7167068,6.53115006 Z M16.43735,2 C17.0920882,2 17.7197259,2.26141978 18.1781068,2.7234227 L21.2790059,5.82432181 C21.7406843,6.28599904 22.0000526,6.91216845 22.0000526,7.56507948 C22.0000526,8.21799052 21.7406843,8.84415992 21.2790068,9.30583626 L9.95750718,20.6237545 C9.25902448,21.4294925 8.26890003,21.9245308 7.1346,22.0023295 L2,22.0023295 L2,21.0023295 L2.00324765,16.7873015 C2.08843822,15.7328366 2.57866679,14.7523321 3.32649633,14.0934196 L14.6953877,2.72462818 C15.1563921,2.2608295 15.7833514,2 16.43735,2 Z"/>
+                                </svg>`
+
+                e47.addEventListener("click", function (e) {
+                    createModal("editPlaylist.html");
+                })
+
+                e7.appendChild(e47);
+
                 const e9 = document.createElement('span');
                 e9.innerHTML = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M12.5535 16.5061C12.4114 16.6615 12.2106 16.75 12 16.75C11.7894 16.75 11.5886 16.6615 11.4465 16.5061L7.44648 12.1311C7.16698 11.8254 7.18822 11.351 7.49392 11.0715C7.79963 10.792 8.27402 10.8132 8.55352 11.1189L11.25 14.0682V3C11.25 2.58579 11.5858 2.25 12 2.25C12.4142 2.25 12.75 2.58579 12.75 3V14.0682L15.4465 11.1189C15.726 10.8132 16.2004 10.792 16.5061 11.0715C16.8118 11.351 16.833 11.8254 16.5535 12.1311L12.5535 16.5061Z" fill="#000"/>
@@ -293,16 +314,6 @@ function replaceContent(type, content){
                 });
 
                 e7.appendChild(e9);
-
-                
-                const e10 = document.createElement('span');
-                e10.innerHTML = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>`;
-                e10.addEventListener("click", function (e) {
-                    createModal("deletePlaylist.html");
-                })
-                e7.appendChild(e10);
                 
                 e6.appendChild(e7);
                 e6.setAttribute("style", "justify-content: space-between;display: flex;padding: 10px;")
@@ -345,7 +356,7 @@ function replaceContent(type, content){
                         const element = playlist.list[index];
                         musicContainer.insertAdjacentHTML("beforeend", 
                         divMusic
-                            .replace("%image%", element.thumbnails[0].url)
+                            .replace("%image%", element.thumbnails[0].url.includes("https://") ? "/api/proxy?url=" + btoa(element.thumbnails[0].url) : element.thumbnails[0].url)
                             .replace("%song:id%", element.videoid)
                             .replace("%song:name%", element.title)
                             .replace("%song:author%", element.author)

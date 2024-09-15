@@ -70,23 +70,32 @@ func ProcessAudioFiles() (bool, error) {
 			log.Println("Folder: ", e.Name())
 			currPath := filepath.Join("audio", e.Name())
 			cover, err := findCover(currPath)
+
 			if err != nil {
 				log.Println("Error finding cover > ", err)
 			}
+
 			if cover == "" {
 				log.Println("No cover found for album: ", e.Name())
 			}
+
+			tx, err := db.Begin()
+			if err != nil {
+				return false, err
+			}
+
 			const checkAlbumSQL = "SELECT id FROM Album WHERE name = $1"
 
 			var albumID int
-			err = db.QueryRow(checkAlbumSQL, e.Name()).Scan(&albumID)
+			err = tx.QueryRow(checkAlbumSQL, e.Name()).Scan(&albumID)
 			if err != nil {
 				if err != sql.ErrNoRows {
 					log.Panic("Error checking if album exists > ", err)
 				}
 				const sql string = "INSERT INTO Album(name,cover) VALUES ($1,$2) RETURNING id"
-				err = db.QueryRow(sql, e.Name(), cover).Scan(&albumID)
+				err = tx.QueryRow(sql, e.Name(), cover).Scan(&albumID)
 				if err != nil {
+					tx.Rollback()
 					log.Panic("Error sending inserting album into database > ", err)
 				}
 				log.Println("Album inserted into database with ID:", albumID)
@@ -94,23 +103,27 @@ func ProcessAudioFiles() (bool, error) {
 				log.Println("Album already exists in database with ID: ", albumID)
 			}
 
-			ReadFolder(albumID, currPath)
+			if success, err := ReadFolder(albumID, currPath, tx); err != nil || !success {
+				defer tx.Rollback()
+				log.Panic("Error processing folder > ", err)
+			} else {
+				tx.Commit()
+			}
 		}
 	}
 
 	return true, nil
 }
 
-func ReadFolder(albumId int, folder string) (bool, error) {
+func ReadFolder(albumId int, folder string, tx *sql.Tx) (bool, error) {
 	folders, err := os.ReadDir(folder)
-	db := utils.StartConn()
 	if err != nil {
 		return false, err
 	}
 
 	for _, e := range folders {
 		if e.IsDir() {
-			if _, err := ReadFolder(albumId, filepath.Join(folder, e.Name())); err != nil {
+			if _, err := ReadFolder(albumId, filepath.Join(folder, e.Name()), tx); err != nil {
 				return false, err
 			}
 		} else {
@@ -119,7 +132,7 @@ func ReadFolder(albumId int, folder string) (bool, error) {
 				fullPath := filepath.Join(folder, e.Name())
 
 				var audioId string
-				err := db.QueryRow("SELECT id FROM Music WHERE location = $1", fullPath).Scan(&audioId)
+				err := tx.QueryRow("SELECT id FROM Music WHERE location = $1", fullPath).Scan(&audioId)
 				if err != nil {
 					if err != sql.ErrNoRows {
 						log.Println("Error checking existence of audio file in the database:", err)
@@ -140,14 +153,14 @@ func ReadFolder(albumId int, folder string) (bool, error) {
 					}
 
 					sql := "INSERT INTO Music(id, title, author, duration, genre, location) VALUES ($1, $2, $3, $4, $5, $6)"
-					_, err = db.Exec(sql, audioId, title, output.Format.Tags.Artist, math.Round(duration), output.Format.Tags.Genre, fullPath)
+					_, err = tx.Exec(sql, audioId, title, output.Format.Tags.Artist, math.Round(duration), output.Format.Tags.Genre, fullPath)
 					if err != nil {
 						log.Println("Error inserting audio file into database > ", err)
 						continue
 					}
 					// associate audio with album
 					sql = "INSERT INTO Album_Music(album_id, music_id) VALUES ($1, $2)"
-					_, err = db.Exec(sql, albumId, audioId)
+					_, err = tx.Exec(sql, albumId, audioId)
 					if err != nil {
 						log.Println("Error associating audio file with album > ", err)
 						continue
@@ -161,4 +174,61 @@ func ReadFolder(albumId int, folder string) (bool, error) {
 		}
 	}
 	return true, nil
+}
+
+func RemoveMusicFromDb() {
+	db := utils.StartConn()
+
+	tx, err := db.Begin()
+	if err != nil {
+		log.Println("Error starting transaction > ", err)
+		return
+	}
+
+	locations, err := tx.Query("SELECT location FROM Music")
+	if err != nil {
+		log.Println("Error fetching music locations > ", err)
+		return
+	}
+
+	defer locations.Close()
+
+	for locations.Next() {
+		var location string
+		err = locations.Scan(&location)
+		if err != nil {
+			log.Println("Error scanning location > ", err)
+			continue
+		}
+		if _, err := os.Stat(location); os.IsNotExist(err) {
+			log.Println("File not found, removing from database")
+
+			var musicID string
+			err = tx.QueryRow("SELECT id FROM Music WHERE location = $1", location).Scan(&musicID)
+			if err != nil {
+				log.Println("Error getting music id > ", err)
+				continue
+			}
+
+			_, err = tx.Exec("DELETE FROM Album_Music WHERE music_id = $1", musicID)
+			if err != nil {
+				log.Println("Error removing music from Album_Music table > ", err)
+				continue
+			}
+
+			_, err = tx.Exec("DELETE FROM Playlist_Music WHERE music_id = $1", musicID)
+			if err != nil {
+				log.Println("Error removing music from Playlist_Music table > ", err)
+				continue
+			}
+
+			_, err = tx.Exec("DELETE FROM Music WHERE id = $1", musicID)
+			if err != nil {
+				log.Println("Error removing music from Music table > ", err)
+				continue
+			}
+
+			log.Println("Deleted music with id", musicID)
+		}
+	}
 }
