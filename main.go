@@ -112,9 +112,6 @@ func engine() *gin.Engine {
 	})
 
 	app.GET("/logout", func(ctx *gin.Context) {
-		if sessions.Default(ctx).Get("userId") != nil {
-			ctx.Redirect(302, "/login")
-		}
 
 		sessions.Default(ctx).Clear()
 		sessions.Default(ctx).Save()
