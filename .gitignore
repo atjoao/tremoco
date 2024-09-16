@@ -2,3 +2,4 @@ testcode/
 audio/
 .env
 !audio/format.txt
+*.remove
