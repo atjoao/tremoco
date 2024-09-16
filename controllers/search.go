@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"log"
-	"music/functions"
-	"music/utils"
 	"os"
 	"regexp"
 	"strings"
+	"tremoco/functions"
+	"tremoco/utils"
 
 	"github.com/gin-gonic/gin"
 )

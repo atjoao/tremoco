@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"music/functions"
 	"path/filepath"
 	"regexp"
+	"tremoco/functions"
 
 	"github.com/gin-gonic/gin"
 )

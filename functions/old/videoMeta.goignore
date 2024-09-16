@@ -3,7 +3,7 @@ package functions
 import (
 	"fmt"
 	"io"
-	"music/server/utils"
+	"tremoco/server/utils"
 	"net/http"
 	"net/url"
 	"regexp"

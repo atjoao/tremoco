@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"music/utils"
 	"net/http"
 	"net/url"
 	"strings"
+	"tremoco/utils"
 )
 
 func VideoMeta(videoId string, includeVideo bool) (*utils.YT_VideoPlaybackResponse, []utils.Streams, error) {

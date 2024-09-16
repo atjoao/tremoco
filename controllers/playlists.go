@@ -3,12 +3,12 @@ package controllers
 import (
 	"encoding/base64"
 	"fmt"
-	"music/functions"
-	"music/utils"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
+	"tremoco/functions"
+	"tremoco/utils"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"

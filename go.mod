@@ -1,4 +1,4 @@
-module music
+module tremoco
 
 go 1.20
 

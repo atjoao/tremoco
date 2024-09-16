@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"music/utils"
+	"tremoco/utils"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"

@@ -3,7 +3,7 @@ package controllers
 import (
 	"encoding/base64"
 	"log"
-	"music/utils"
+	"tremoco/utils"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"

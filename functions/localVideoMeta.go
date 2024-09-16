@@ -1,7 +1,7 @@
 package functions
 
 import (
-	"music/utils"
+	"tremoco/utils"
 )
 
 func LocalVideoMeta(videoId string) *utils.VideoMeta {

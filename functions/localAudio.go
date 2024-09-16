@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"log"
 	"math"
-	"music/utils"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+	"tremoco/utils"
 )
 
 func isAudioFile(filename string) bool {
