@@ -1,5 +1,5 @@
 # https://github.com/itsokk/ffviewer/blob/master/.github/workflows/build.yml
-name: Build savetool
+name: Build tremoco
 on: [push]
 
 jobs:
