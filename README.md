@@ -43,10 +43,3 @@ Tremoço tem uma WebUI > https://localhost:3000
     └── POST /register (FORMDATA)
 
 ```
-
-# Informação do projeto
-
-| nº  | linguagem | tipo      |
-| --- | --------- | --------- |
-| 2   | Go / JS   | fullstack |
-
