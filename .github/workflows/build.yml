@@ -2,6 +2,9 @@
 name: Build tremoco
 on: [push]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build on Ubuntu
