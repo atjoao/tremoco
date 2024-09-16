@@ -226,7 +226,7 @@ function replaceContent(type, content){
     
     switch(type){
         case "search":{
-            document.querySelector("title").innerText = `Musica | Search ${clearText(searchForm.value)}`
+            document.querySelector("title").innerText = `Tremoco | Search ${clearText(searchForm.value)}`
             searchContainer.setAttribute("class", "")
             playlistContainer.setAttribute("class", "hidden")
             initalContainer.setAttribute("class", "hidden")
@@ -458,7 +458,7 @@ function replaceContent(type, content){
 
                 playlistContainer.appendChild(musicContainer)
 
-                document.querySelector("title").innerText = `Musica | Playlist ${playlist.name}`
+                document.querySelector("title").innerText = `Tremoco | Playlist ${playlist.name}`
                 document.querySelectorAll("#PlayOverlay").forEach((element)=>{
                     element.addEventListener("click", function (e) {
                         if(playlist.list){
@@ -496,7 +496,7 @@ function replaceContent(type, content){
             break;
         }
         default:{
-            document.querySelector("title").innerText = `Musica | Home`
+            document.querySelector("title").innerText = `Tremoco | Home`
 
             initalContainer.setAttribute("class", "")
             searchContainer.setAttribute("class", "hidden")
