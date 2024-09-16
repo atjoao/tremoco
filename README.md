@@ -9,7 +9,7 @@ Tremoco é um projeto de streaming de musicas(simples), não tem como objetivo d
 Ter
 - `FFProbe` em `%PATH%` ou parecido?? (ate arranjar maneira de ler exif data)
 
-Transfere o Tremoco [aqui](https://github.com/atjoao/concordo/releases/)
+Transfere o Tremoco [aqui](https://github.com/atjoao/tremoco/releases/)
 
 Remover .example do ficheiro `.env.example`
 
