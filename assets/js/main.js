@@ -105,7 +105,7 @@ function loadRecentlyPlayed() {
 
                     document.getElementById("recentlyPlayed").insertAdjacentHTML("beforeend",
                         html.replace("%music:image%", element.info.thumbnails[0].url.includes("https://") ? "/api/proxy?url=" + btoa(element.info.thumbnails[0].url) : element.info.thumbnails[0].url)
-                            .replace("%music:name%", element.info.title)
+                            .replace("%music:name%", element.info.title.replace(/\\"/g, '"'))
                             .replace("%music:length%", fmtMSS(element.info.duration))
                             .replace("%music:id%", element.info.videoid)
                             .replace("%music:id%", element.info.videoid)
@@ -244,7 +244,7 @@ function replaceContent(type, content){
 
                 const p = document.createElement("p");
                 p.classList.add("title");
-                p.textContent = music.title;
+                p.textContent = music.title.replace(/\\"/g, '"');
 
                 const author = document.createElement("p");
                 author.textContent = "Author: "+ music.author;
@@ -449,7 +449,7 @@ function replaceContent(type, content){
                         divMusic
                             .replace("%image%", element.thumbnails[0].url.includes("https://") ? "/api/proxy?url=" + btoa(element.thumbnails[0].url) : element.thumbnails[0].url)
                             .replace("%song:id%", element.videoid)
-                            .replace("%song:name%", element.title)
+                            .replace("%song:name%", element.title.replace(/\\"/g, '"'))
                             .replace("%song:author%", element.author)
                             .replace("%duration%", fmtMSS(element.duration))
                         )

@@ -127,7 +127,7 @@ audio.onplay = () => {
     }
     
     navigator.mediaSession.metadata = new MediaMetadata({
-        title: queue.currentSong.title,
+        title: queue.currentSong.title.replace(/\\"/g, '"'),
         artist: queue.currentSong.author,
         artwork: [
             {
@@ -152,7 +152,7 @@ audio.onplay = () => {
     });
 
     playerImage.src = thumb;
-    playerTitle.textContent = queue.currentSong.title;
+    playerTitle.textContent = queue.currentSong.title.replace(/\\"/g, '"');
     playerAuthor.textContent = queue.currentSong.author;
 
     playerDuration.textContent = fmtMSS(queue.currentSong.duration)

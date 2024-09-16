@@ -64,7 +64,7 @@ func SearchVideo(name string) ([]utils.VideoSearch, error) {
 			return nil, err
 		}
 
-		re := regexp.MustCompile(`"flexColumns":\[\{"musicResponsiveListItemFlexColumnRenderer":\{"text":\{"runs":\[\{"text":"([^"]{0,100})".{0,120}"videoId":"([^"]{0,50})".{0,300}(?:"text":"([^"]+)","navigationEndpoint":\{"clickTrackingParams":"[^"]+","browseEndpoint":\{"browseId":"[^"]+","browseEndpointContextSupportedConfigs":\{"browseEndpointContextMusicConfig":\{"pageType":"MUSIC_PAGE_TYPE_ARTIST"})+`)
+		re := regexp.MustCompile(`"flexColumns":\[\{"musicResponsiveListItemFlexColumnRenderer":\{"text":\{"runs":\[\{"text":"((?:[^"\\]|\\.)+)".{0,200}"videoId":"([^"]{0,50})".{0,300}(?:"text":"([^"]+)","navigationEndpoint":\{"clickTrackingParams":"[^"]+","browseEndpoint":\{"browseId":"[^"]+","browseEndpointContextSupportedConfigs":\{"browseEndpointContextMusicConfig":\{"pageType":"MUSIC_PAGE_TYPE_ARTIST"})`)
 		matches := re.FindAllStringSubmatch(string(body), -1)
 
 		for _, match := range matches {
