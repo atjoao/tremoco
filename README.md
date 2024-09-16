@@ -1,14 +1,14 @@
-﻿# Tremoço
+﻿# Tremoco
 
-# O que é o Tremoço
+# O que é o Tremoco
 
-Tremoço é um projeto de streaming de musicas(simples), não tem como objetivo de fazer reencoding e etcs...
+Tremoco é um projeto de streaming de musicas(simples), não tem como objetivo de fazer reencoding e etcs...
 
 # Como instalar
 
 Ter uma base de dados `POSTGRES` e definir ligação `POSTGRES_URI` 
 
-Transfere o tremoço [aqui](https://github.com/atjoao/concordo/releases) e faz run a este comando
+Transfere o Tremoco [aqui](https://github.com/atjoao/concordo/releases) e faz run a este comando
 
 Iniciar powershell e executar:
 ```ps
@@ -18,7 +18,7 @@ O comando acima define as variaveis de sistema necessarias para executar.
 
 As variaveis podem ser trocadas no ficheiro `.env`
 
-Tremoço tem uma WebUI > https://localhost:3000
+Tremoco tem uma WebUI > https://localhost:3000
 
 # Endpoints disponiveis
 ```
