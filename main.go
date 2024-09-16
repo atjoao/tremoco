@@ -134,7 +134,7 @@ func main() {
 
 	dbConn := utils.StartConn()
 	if dbConn != nil {
-		log.Println("Connected to postgres database")
+		log.Println("Database established!")
 	}
 
 	log.Println("Executing .sql files")
