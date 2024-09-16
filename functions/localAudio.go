@@ -185,7 +185,7 @@ func RemoveMusicFromDb() {
 		return
 	}
 
-	locations, err := tx.Query("SELECT location FROM Music")
+	locations, err := db.Query("SELECT location FROM Music")
 	if err != nil {
 		log.Println("Error fetching music locations > ", err)
 		return
@@ -231,4 +231,6 @@ func RemoveMusicFromDb() {
 			log.Println("Deleted music with id", musicID)
 		}
 	}
+
+	tx.Commit()
 }
