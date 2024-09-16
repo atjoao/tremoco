@@ -40,7 +40,7 @@ jobs:
         path: ./bin/win-64/tremoco.exe
 
     - name: Create GitHub Release and Upload Assets
-      uses: softprops/action-gh-release@v2
+      uses: ncipollo/release-action@v1
       with:
         files: |
           ./bin/linux-64/tremoco
