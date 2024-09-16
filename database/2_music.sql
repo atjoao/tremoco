@@ -1,35 +1,33 @@
-CREATE TABLE IF NOT EXISTS Playlists(
-    id serial,
+CREATE TABLE IF NOT EXISTS Playlists (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     userId INT NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    image VARCHAR(255) DEFAULT NULL,
-    FOREIGN KEY(userId) REFERENCES Users(id),
-    PRIMARY KEY (id)
+    name TEXT NOT NULL,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    image TEXT DEFAULT NULL,
+    FOREIGN KEY(userId) REFERENCES Users(id)
 );
 
 CREATE TABLE IF NOT EXISTS Music(
-    id VARCHAR(30) NOT NULL, -- local_<id>
-    title VARCHAR(255) NOT NULL,
-    author VARCHAR(255) NOT NULL,
+    id TEXT NOT NULL, -- local_<id>
+    title TEXT NOT NULL,
+    author TEXT NOT NULL,
     duration INT NOT NULL,
-    genre VARCHAR(255) NOT NULL,
-    location VARCHAR(255) NOT NULL,
+    genre TEXT NOT NULL,
+    location TEXT NOT NULL,
     PRIMARY KEY(id),
     UNIQUE(id, location)
 );
 -- album detected by folder name
 CREATE TABLE IF NOT EXISTS Album(
-    id serial,
-    name VARCHAR(255) NOT NULL,
-    cover VARCHAR(255),
-    PRIMARY KEY(id),
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    cover TEXT,
     UNIQUE(name, cover)
 );
 
 CREATE TABLE IF NOT EXISTS Album_Music (
     album_id INT,
-    music_id VARCHAR(30),
+    music_id TEXT,
     FOREIGN KEY (album_id) REFERENCES Album(id),
     FOREIGN KEY (music_id) REFERENCES Music(id),
     PRIMARY KEY (album_id, music_id),
@@ -38,7 +36,7 @@ CREATE TABLE IF NOT EXISTS Album_Music (
 
 CREATE TABLE IF NOT EXISTS Playlist_Music(
     playlist_id INT,
-    music_id VARCHAR(30) NOT NULL,
+    music_id TEXT NOT NULL,
     FOREIGN KEY (playlist_id) REFERENCES Playlists(id),
     PRIMARY KEY (playlist_id, music_id)
 );

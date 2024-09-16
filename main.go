@@ -14,7 +14,7 @@ import (
 	"tremoco/utils"
 
 	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/postgres"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -30,11 +30,7 @@ func engine() *gin.Engine {
 	templ := template.Must(template.New("").ParseFS(embedded, "templates/*.tmpl"))
 	app.SetHTMLTemplate(templ)
 
-	store, err := postgres.NewStore(utils.StartConn(), []byte(os.Getenv("SESSION_KEY")))
-	if err != nil {
-		log.Panicln("Error creating session store > ", err)
-	}
-
+	store := cookie.NewStore([]byte(os.Getenv("SESSION_KEY")))
 	app.Use(sessions.Sessions("sessions", store))
 
 	// html render

@@ -2,34 +2,22 @@ package utils
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
-	"os"
+
+	_ "modernc.org/sqlite"
 )
 
 var dbConn *sql.DB
 
 func StartConn() *sql.DB {
+	var err error
 	if dbConn != nil {
 		return dbConn
 	}
 
-	var err error
-	connStr := os.Getenv("POSTGRES_URI")
-	if connStr == "" {
-		log.Panicln("POSTGRES_URI environment variable is not set")
-	}
-
-	fmt.Println("Connecting to database: ", connStr)
-
-	dbConn, err = sql.Open("postgres", connStr)
+	dbConn, err = sql.Open("sqlite", "./tremoco.db")
 	if err != nil {
-		log.Panicln("Error connecting to postgres database:", err)
-	}
-
-	err = dbConn.Ping()
-	if err != nil {
-		log.Panicln("Error pinging the database:", err)
+		log.Panicln("Error creating database:", err)
 	}
 
 	return dbConn
