@@ -6,6 +6,13 @@ type User struct {
 	Id       int
 }
 
+type PlaylistShow struct {
+	PlaylistImage string `json:"image"`
+	PlaylistId    int    `json:"id"`
+	PlaylistName  string `json:"name"`
+	PlaylistUrl   string `json:"url"`
+}
+
 type Playlist struct {
 	PlaylistImage string      `json:"image"`
 	PlaylistId    int         `json:"id"`

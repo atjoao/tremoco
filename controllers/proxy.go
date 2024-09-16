@@ -18,7 +18,7 @@ var allowedDomains = []string{
 	"raw.githubusercontent.com",
 }
 
-func isDomainAllowed(domain string, allowedDomains []string) bool {
+func IsDomainAllowed(domain string) bool {
 	for _, allowedDomain := range allowedDomains {
 		if strings.Contains(domain, allowedDomain) {
 			return true
@@ -56,7 +56,7 @@ func ProxyContent(ctx *gin.Context) {
 		return
 	}
 
-	if !isDomainAllowed(urlParse.Host, allowedDomains) {
+	if !IsDomainAllowed(urlParse.Host) {
 		ctx.JSON(400, gin.H{
 			"status":  "INVALID_PARAMS",
 			"message": "Invalid domain",

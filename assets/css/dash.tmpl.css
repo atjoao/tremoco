@@ -1,6 +1,5 @@
 @import "root.css";
 
-/* Page Content */
 .pagecontent {
     flex: 0.9;
     display: flex;
@@ -19,7 +18,6 @@
     position: relative;
 }
 
-/* Sidebar */
 .pagecontent #sidebar {
     flex: 0.2;
     display: flex;
@@ -380,6 +378,9 @@
     font-size: 16px;
     max-width: 130px;
     min-width: 130px;
+    overflow: hidden;
+    word-wrap: break-word;
+    white-space: nowrap;
 }
 
 #player-author {
@@ -434,19 +435,29 @@
     transition: background-color 0.3s;
 }
 
-#player-progress::-webkit-slider-thumb,
-#player-progress::-moz-range-thumb{
+#player-progress::-webkit-slider-thumb{
     -webkit-appearance: none;
     appearance: none;
     width: 14px;
     height: 14px;
-    background-color: var(--accent);
+    background-color: var(--primary);
     border-radius: 50%;
     cursor: pointer;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 }
 
-#player-progress::-moz-range-progress {
+#player-progress::-moz-range-thumb{
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background-color: var(--primary);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+#player-progress::-moz-range-progress{
     background: var(--primary);
 }
 
@@ -472,7 +483,16 @@
     transition: background-color 0.3s;
 }
 
-#player-volume::-webkit-slider-thumb,
+#player-volume::-webkit-slider-thumb{
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background-color: var(--primary);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
 #player-volume::-moz-range-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -487,3 +507,47 @@
     background: var(--primary);
 }
 
+#initial #recentlyPlayed{
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    overflow: auto;
+    margin-top: 10px;
+    flex-direction: column-reverse;
+}
+
+#initial #recentlyPlayed .recentPlayedContainer{
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    width: 100%;
+    align-items: center;
+    background-color: var(--secondary);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+#inital #recentlyPlayed .recentPlayedContainer:hover {
+    transform: scale(1.02);
+}
+
+#initial #recentlyPlayed .recentPlayedContainer img {
+    border-radius: 8px;
+    box-sizing: border-box;
+    display: inline-block;
+    max-width: 64px;
+    min-width: 64px;
+    min-height: 64px;
+    max-height: 64px;
+    object-fit: cover;
+}
+
+#initial #recentlyPlayed .recentPlayedContainer button {
+    background-color: #505A6C;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+    flex: 1;
+}

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/base64"
 	"log"
 	"music/utils"
 
@@ -29,10 +30,15 @@ func Sidebar(ctx *gin.Context) {
 
 	for rows.Next() {
 		var playlist utils.Playlist
+
 		err = rows.Scan(&playlist.PlaylistId, &playlist.PlaylistName, &playlist.PlaylistImage)
 		if err != nil {
 			log.Println("Error on playlist scan > ", err, "for user id > ", userId)
 			continue
+		}
+
+		if IsDomainAllowed(playlist.PlaylistImage) {
+			playlist.PlaylistImage = "/api/proxy?url=" + base64.StdEncoding.EncodeToString([]byte(playlist.PlaylistImage))
 		}
 
 		playlists = append(playlists, playlist)

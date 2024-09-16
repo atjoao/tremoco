@@ -59,7 +59,6 @@ function toggleShuffle(force) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    // get volume from localstorage
     const volume = localStorage.getItem("volume")
     if (volume) {
         playerVolume.value = volume
@@ -75,8 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 playerVolume.addEventListener("change", (e)=> {
     audio.volume = e.target.value / 100;
-
-    // save volume to localstorage
     localStorage.setItem("volume", e.target.value)
 })
 
@@ -223,11 +220,6 @@ function startQueue(){
 
 }
 
-function clearQueue(){
-    // stops audio
-    // clears queue
-}
-
 function nextTrack(){
     if (!queue.currentQueue[queue.position + 1]) {
         console.log("Next track is undefined, stopping execution.");
@@ -235,7 +227,6 @@ function nextTrack(){
         audio.src = null;
         navigator.mediaSession.metadata = null;
 
-        // reset player
         playerImage.src = "";
         playerTitle.textContent = "";
         playerAuthor.textContent = "";
@@ -261,7 +252,7 @@ function nextTrack(){
 
     queue.position = queue.position+1;
 
-    console.log(queue.position) // 1
+    console.log(queue.position)
 
     let streams = queue.currentQueue[queue.position].streams
 
@@ -325,7 +316,7 @@ function backTrack(){
 // bad impl
 
 function shuffleQueue() {
-    const unplayed = queue.currentQueue.slice(queue.position + 1); // Get unplayed songs (after current song)
+    const unplayed = queue.currentQueue.slice(queue.position + 1);
     
     for (let i = unplayed.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -343,7 +334,7 @@ function shuffleQueue() {
 
 
 function resetQueueOrder() {
-    const unplayed = queue.originalQueue.slice(queue.position + 1); // Get original unplayed songs
+    const unplayed = queue.originalQueue.slice(queue.position + 1);
     
     queue.currentQueue = [
         ...queue.alteradyPlayed, 

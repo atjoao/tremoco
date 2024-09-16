@@ -41,6 +41,7 @@ func engine() *gin.Engine {
 		api.GET("/stream/:audioId", controllers.StreamAudio)
 		api.GET("/cover/:audioId", controllers.GetAudioCover)
 
+		api.GET("/playlists", controllers.GetUserPlaylists)
 		api.POST("/playlist/create", controllers.CreatePlaylist)
 		api.GET("/playlist/get/:audioId", controllers.GetPlaylistsMusic)
 		api.POST("/playlist/change", controllers.ChangePlaylist)

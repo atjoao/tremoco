@@ -67,15 +67,103 @@ window.createModal = (modal) => {
         .catch((e) => console.error("Error loading modal:", e));
 };
 
+function addRecentPlayed(type, info){
+    const recentPlayed = JSON.parse(localStorage.getItem("recentPlayed"));
+    if (recentPlayed.length >= 10){
+        recentPlayed.shift();
+    }
+
+    recentPlayed.some((element, index)=>{
+        if (element.type == type && element.info.videoid == info.videoid){
+            recentPlayed.splice(index, 1);
+            return true;
+        }
+    })
+
+    recentPlayed.push({type, info});
+    localStorage.setItem("recentPlayed", JSON.stringify(recentPlayed));
+}
+
+function loadRecentlyPlayed() {
+    document.getElementById("recentlyPlayed").innerHTML = "";
+
+    if (localStorage.getItem("recentPlayed") === null){
+        localStorage.setItem("recentPlayed", JSON.stringify([]));
+    } else {
+        const recentPlayed = JSON.parse(localStorage.getItem("recentPlayed"));
+        if (recentPlayed.length > 0){
+            recentPlayed.forEach((element)=>{
+                if (element.type == "music"){
+                    const html = `
+                    <div class="recentPlayedContainer" data-playlistid="%music:id%">
+                        <img src="%music:image%"/>
+                        <p>%music:name%</p>
+                        <p>%music:author%</p>
+                        <p>%music:length%</p>
+                        <button id="play_%music:id%">Play</button>
+                    </div>`
+
+                    document.getElementById("recentlyPlayed").insertAdjacentHTML("beforeend",
+                        html.replace("%music:image%", element.info.thumbnails[0].url.includes("https://") ? "/api/proxy?url=" + btoa(element.info.thumbnails[0].url) : element.info.thumbnails[0].url)
+                            .replace("%music:name%", element.info.title)
+                            .replace("%music:length%", fmtMSS(element.info.duration))
+                            .replace("%music:id%", element.info.videoid)
+                            .replace("%music:id%", element.info.videoid)
+                            .replace("%music:author%", element.info.author)
+                        );
+
+                    document.getElementById("play_"+element.info.videoid).addEventListener("click", function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        fetch("/api/video?id=" + element.info.videoid).then(r => r.json()).then(data => {
+                            sendToQueue([data.data], true);
+                            addRecentPlayed("music", data.data);
+                        });
+                    });
+
+                }
+                if (element.type == "playlist"){
+                    const html = `
+                    <div class="recentPlayedContainer" data-playlistid="%playlist:id%">
+                        <img src="%playlist:image%"/>
+                        <p>%playlist:name%</p>
+                        <p>%playlist:length% songs</p>
+                        <button onclick='replaceContent(\"playlist\", this.parentElement.dataset.playlistid)'>Open</button>
+                        <button id="play_%playlist:id%">Play</button>
+                    </div>
+                    `
+
+                    document.getElementById("recentlyPlayed").insertAdjacentHTML("beforeend", 
+                        html
+                            .replace("%playlist:image%", element.info.image)
+                            .replace("%playlist:name%", element.info.name)
+                            .replace("%playlist:length%", element.info.list.length)
+                            .replace("%playlist:id%", element.info.id)
+                            .replace("%playlist:id%", element.info.id)
+                        );
+
+                    document.getElementById("play_"+element.info.id).addEventListener("click", function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        fetch("/api/playlist/"+element.info.id).then((r)=> r.json()).then((resp)=>{
+                            sendToQueue(resp.playlist.list, true);
+                            addRecentPlayed("playlist", resp.playlist);
+                        })
+                    });
+
+                }
+            })
+        }
+    }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
-    // fill localstorage with data
     getSidebar();
+    loadRecentlyPlayed();
 });
 
 document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-        // if modal is up, remove it
         document.querySelector(".modal")?.remove();
     }
 });
@@ -178,9 +266,9 @@ function replaceContent(type, content){
                 const play = document.createElement("button");
                 play.textContent = "Play";
                 play.onclick = () => {
-                    // fetch streams
                     fetch("/api/video?id=" + music.id).then(r => r.json()).then(data => {
                         sendToQueue([data.data], true);
+                        addRecentPlayed("music", data.data);
                     });
 
                 }
@@ -278,7 +366,10 @@ function replaceContent(type, content){
                                     <path d="M16.6582 9.28638C18.098 10.1862 18.8178 10.6361 19.0647 11.2122C19.2803 11.7152 19.2803 12.2847 19.0647 12.7878C18.8178 13.3638 18.098 13.8137 16.6582 14.7136L9.896 18.94C8.29805 19.9387 7.49907 20.4381 6.83973 20.385C6.26501 20.3388 5.73818 20.0469 5.3944 19.584C5 19.053 5 18.1108 5 16.2264V7.77357C5 5.88919 5 4.94701 5.3944 4.41598C5.73818 3.9531 6.26501 3.66111 6.83973 3.6149C7.49907 3.5619 8.29805 4.06126 9.896 5.05998L16.6582 9.28638Z" stroke="#000000" stroke-width="2" stroke-linejoin="round"/>
                                 </svg>`;
                 e8.addEventListener("click", function (e) {
-                    if(playlist.list) sendToQueue(playlist.list, true)
+                    if(playlist.list){
+                        sendToQueue(playlist.list, true)
+                        addRecentPlayed("playlist", playlist)
+                    }
                 })
                 e7.appendChild(e8);
 
@@ -308,7 +399,7 @@ function replaceContent(type, content){
                                     <path d="M3.75 15C3.75 14.5858 3.41422 14.25 3 14.25C2.58579 14.25 2.25 14.5858 2.25 15V15.0549C2.24998 16.4225 2.24996 17.5248 2.36652 18.3918C2.48754 19.2919 2.74643 20.0497 3.34835 20.6516C3.95027 21.2536 4.70814 21.5125 5.60825 21.6335C6.47522 21.75 7.57754 21.75 8.94513 21.75H15.0549C16.4225 21.75 17.5248 21.75 18.3918 21.6335C19.2919 21.5125 20.0497 21.2536 20.6517 20.6516C21.2536 20.0497 21.5125 19.2919 21.6335 18.3918C21.75 17.5248 21.75 16.4225 21.75 15.0549V15C21.75 14.5858 21.4142 14.25 21 14.25C20.5858 14.25 20.25 14.5858 20.25 15C20.25 16.4354 20.2484 17.4365 20.1469 18.1919C20.0482 18.9257 19.8678 19.3142 19.591 19.591C19.3142 19.8678 18.9257 20.0482 18.1919 20.1469C17.4365 20.2484 16.4354 20.25 15 20.25H9C7.56459 20.25 6.56347 20.2484 5.80812 20.1469C5.07435 20.0482 4.68577 19.8678 4.40901 19.591C4.13225 19.3142 3.9518 18.9257 3.85315 18.1919C3.75159 17.4365 3.75 16.4354 3.75 15Z" fill="#000"/>
                                 </svg>`;
                 e9.addEventListener("click", function (e) {
-                    // download playliust
+                    // download playlist
                     if (!playlist.list) return;
                     alert("todo...")
                 });
@@ -375,6 +466,7 @@ function replaceContent(type, content){
                                 return song.videoid == element.parentElement.parentElement.parentElement.dataset.musicid
                             })
                             sendToQueue(playlistFiltered, true)
+                            addRecentPlayed("music", playlistFiltered[0])
                         }
                     })
                 })
@@ -412,6 +504,8 @@ function replaceContent(type, content){
 
             searchForm.value = null;
             searchForm.innerText = null;
+
+            loadRecentlyPlayed();
 
             break;
 

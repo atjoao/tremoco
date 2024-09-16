@@ -1,12 +1,13 @@
 package controllers
 
 import (
+	"encoding/base64"
 	"fmt"
 	"music/functions"
 	"music/utils"
-	"net/url"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/gin-contrib/sessions"
@@ -238,13 +239,15 @@ func GetPlaylist(ctx *gin.Context) {
 		return
 	}
 
-	var playlistName string
-	var playlistId int
-	var playlistImage string
-	rows.Scan(&playlistId, &playlistName, &playlistImage)
+	var playlist utils.Playlist
+	rows.Scan(&playlist.PlaylistId, &playlist.PlaylistName, &playlist.PlaylistImage)
+
+	if IsDomainAllowed(playlist.PlaylistImage) {
+		playlist.PlaylistImage = "/api/proxy?url=" + base64.StdEncoding.EncodeToString([]byte(playlist.PlaylistImage))
+	}
 
 	sql = "SELECT music_id FROM playlist_music WHERE playlist_id = $1"
-	playlistRows, err := db.Query(sql, playlistId)
+	playlistRows, err := db.Query(sql, playlist.PlaylistId)
 	if err != nil {
 		ctx.JSON(500, gin.H{
 			"status":  "SERVER_ERROR",
@@ -254,8 +257,6 @@ func GetPlaylist(ctx *gin.Context) {
 	}
 
 	defer playlistRows.Close()
-
-	var playlistMusics []utils.VideoMeta
 
 	for playlistRows.Next() {
 		var musicId string
@@ -270,7 +271,7 @@ func GetPlaylist(ctx *gin.Context) {
 				continue
 			}
 
-			playlistMusics = append(playlistMusics, *response)
+			playlist.MusicList = append(playlist.MusicList, *response)
 		} else if os.Getenv("INCLUDE_YOUTUBE") == "true" {
 
 			response, metas, err := functions.VideoMeta(musicId, false)
@@ -294,18 +295,13 @@ func GetPlaylist(ctx *gin.Context) {
 				Streams:    metas,
 			}
 
-			playlistMusics = append(playlistMusics, *music)
+			playlist.MusicList = append(playlist.MusicList, *music)
 		}
 	}
 
 	ctx.JSON(200, gin.H{
-		"status": "OK",
-		"playlist": &utils.Playlist{
-			PlaylistImage: playlistImage,
-			PlaylistId:    playlistId,
-			PlaylistName:  playlistName,
-			MusicList:     playlistMusics,
-		},
+		"status":   "OK",
+		"playlist": playlist,
 	})
 }
 
@@ -390,6 +386,47 @@ func DeletePlaylist(ctx *gin.Context) {
 
 }
 
+func GetUserPlaylists(ctx *gin.Context) {
+	db := utils.StartConn()
+	var userId int = sessions.Default(ctx).Get("userId").(int)
+
+	const sql string = "SELECT id, name, image FROM playlists WHERE userId = $1"
+
+	rows, err := db.Query(sql, userId)
+	if err != nil {
+		ctx.JSON(500, gin.H{
+			"status":  "SERVER_ERROR",
+			"message": "There was an error while fetching playlists",
+		})
+		return
+	}
+
+	defer rows.Close()
+
+	var playlists []utils.PlaylistShow
+
+	for rows.Next() {
+		var playlist utils.PlaylistShow
+		err = rows.Scan(&playlist.PlaylistId, &playlist.PlaylistName, &playlist.PlaylistImage)
+		if err != nil {
+			continue
+		}
+
+		if IsDomainAllowed(playlist.PlaylistImage) {
+			playlist.PlaylistImage = "/api/proxy?url=" + base64.StdEncoding.EncodeToString([]byte(playlist.PlaylistImage))
+		}
+
+		playlist.PlaylistUrl = "/api/playlist/" + strconv.Itoa(playlist.PlaylistId)
+
+		playlists = append(playlists, playlist)
+	}
+
+	ctx.JSON(200, gin.H{
+		"status":    "OK",
+		"playlists": playlists,
+	})
+}
+
 func EditPlaylist(ctx *gin.Context) {
 	db := utils.StartConn()
 
@@ -453,16 +490,6 @@ func EditPlaylist(ctx *gin.Context) {
 			return
 		}
 	} else {
-		parse, err := url.Parse(playlistImage)
-		if err != nil || parse.Scheme != "http" && parse.Scheme != "https" {
-			tx.Rollback()
-			ctx.JSON(400, gin.H{
-				"status":  "INVALID_PARAMS",
-				"message": "Invalid image url",
-			})
-			return
-		}
-
 		sql = "UPDATE playlists SET name = $1, image = $2 WHERE id = $3"
 		_, err = tx.Exec(sql, playlistName, playlistImage, queryPlaylistId)
 		if err != nil {
