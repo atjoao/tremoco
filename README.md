@@ -10,7 +10,7 @@ Ter
 - Base de dados `POSTGRES` 
 - `FFProbe` em `%PATH%` ou parecido
 
-Transfere o Tremoco [aqui](https://github.com/atjoao/concordo/releases)
+Transfere o Tremoco [aqui](https://github.com/atjoao/concordo/releases/)
 
 Remover .example do ficheiro `.env.example`
 
