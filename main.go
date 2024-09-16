@@ -16,6 +16,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/postgres"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 //go:embed templates/*
@@ -130,6 +131,11 @@ func engine() *gin.Engine {
 
 func main() {
 	var err error
+	err = godotenv.Load()
+	if err != nil {
+		log.Println("Ignoring .env file")
+	}
+
 	dbConn := utils.StartConn()
 	if dbConn != nil {
 		log.Println("Connected to postgres database")
