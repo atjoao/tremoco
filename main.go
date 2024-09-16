@@ -1,11 +1,15 @@
 package main
 
 import (
+	"embed"
 	"fmt"
+	"html/template"
+	"io/fs"
 	"log"
 	"music/controllers"
 	"music/functions"
 	"music/utils"
+	"net/http"
 	"os"
 	"strings"
 
@@ -14,9 +18,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//go:embed templates/*
+//go:embed database/*
+//go:embed assets/*
+var embedded embed.FS
+
 func engine() *gin.Engine {
 	app := gin.Default()
-	app.LoadHTMLGlob("templates/*")
+
+	templ := template.Must(template.New("").ParseFS(embedded, "templates/*.tmpl"))
+	app.SetHTMLTemplate(templ)
 
 	store, err := postgres.NewStore(utils.StartConn(), []byte(os.Getenv("SESSION_KEY")))
 	if err != nil {
@@ -60,7 +71,13 @@ func engine() *gin.Engine {
 	}
 
 	// public routes
-	app.Static("/assets", "./assets")
+
+	assets, err := fs.Sub(embedded, "assets")
+	if err != nil {
+		panic(err)
+	}
+
+	app.StaticFS("/assets", http.FS(assets))
 
 	app.GET("/", func(ctx *gin.Context) {
 		const loadTemplate string = "dash.tmpl"
@@ -119,14 +136,14 @@ func main() {
 	}
 
 	log.Println("Executing .sql files")
-	files, err := os.ReadDir("database")
+	files, err := embedded.ReadDir("database")
 
 	if err != nil {
 		log.Panicln("Error reading .sql files > ", err)
 	}
 
 	for _, file := range files {
-		sql, err := os.ReadFile("database/" + file.Name())
+		sql, err := embedded.ReadFile("database/" + file.Name())
 		if err != nil {
 			log.Panicln("Error reading", file.Name(), ".sql file > ", err)
 		}
