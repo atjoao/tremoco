@@ -4,3 +4,4 @@ audio/
 !audio/format.txt
 *.remove
 *.db
+*.exe

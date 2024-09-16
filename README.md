@@ -7,8 +7,7 @@ Tremoco é um projeto de streaming de musicas(simples), não tem como objetivo d
 # Como instalar
 
 Ter
-- Base de dados `POSTGRES` 
-- `FFProbe` em `%PATH%` ou parecido
+- `FFProbe` em `%PATH%` ou parecido?? (ate arranjar maneira de ler exif data)
 
 Transfere o Tremoco [aqui](https://github.com/atjoao/concordo/releases/)
 
