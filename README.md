@@ -23,6 +23,10 @@ Tremoco tem uma WebUI > https://localhost:3000
 # Endpoints disponiveis
 ```
 /
+├── GET / (page)
+├── GET /login (page)
+├── GET /register (page)
+├── GET /logout (redirect/clear)
 ├── html
 │   └── GET /sidebar
 ├── api (protected)
