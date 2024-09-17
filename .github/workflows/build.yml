@@ -18,17 +18,14 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: 'stable'
-
-    - name: Setup Zig
-      uses: goto-bus-stop/setup-zig@v2.1.1
-
+        
     - name: Build project for Windows x86_64
       run: |
-        GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC="zig cc -target x86_64-windows-gnu" go build -o ./bin/win-64/tremoco.exe
+        GOOS=windows GOARCH=amd64 go build -o ./bin/win-64/tremoco.exe
 
     - name: Build project for Linux x86_64
       run: |
-        GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -o ./bin/linux-64/tremoco
+        GOOS=linux GOARCH=amd64 go build -o ./bin/linux-64/tremoco
 
     - name: Upload Linux x86_64 binary
       uses: actions/upload-artifact@v3
