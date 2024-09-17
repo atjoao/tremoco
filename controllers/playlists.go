@@ -242,8 +242,8 @@ func GetPlaylist(ctx *gin.Context) {
 	var playlist utils.Playlist
 	rows.Scan(&playlist.PlaylistId, &playlist.PlaylistName, &playlist.PlaylistImage)
 
-	if IsDomainAllowed(playlist.PlaylistImage) {
-		playlist.PlaylistImage = "/api/proxy?url=" + base64.StdEncoding.EncodeToString([]byte(playlist.PlaylistImage))
+	if IsDomainAllowed(playlist.PlaylistImage.String) {
+		playlist.PlaylistImage.String = "/api/proxy?url=" + base64.StdEncoding.EncodeToString([]byte(playlist.PlaylistImage.String))
 	}
 
 	sql = "SELECT music_id FROM playlist_music WHERE playlist_id = $1"

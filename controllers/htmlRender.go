@@ -37,8 +37,12 @@ func Sidebar(ctx *gin.Context) {
 			continue
 		}
 
-		if IsDomainAllowed(playlist.PlaylistImage) {
-			playlist.PlaylistImage = "/api/proxy?url=" + base64.StdEncoding.EncodeToString([]byte(playlist.PlaylistImage))
+		if IsDomainAllowed(playlist.PlaylistImage.String) {
+			playlist.PlaylistImage.String = "/api/proxy?url=" + base64.StdEncoding.EncodeToString([]byte(playlist.PlaylistImage.String))
+		}
+
+		if playlist.PlaylistImage.String == "" {
+			playlist.PlaylistImage.String = "/assets/images/default_album.png"
 		}
 
 		playlists = append(playlists, playlist)

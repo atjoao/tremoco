@@ -1,6 +1,11 @@
-# https://github.com/itsokk/ffviewer/blob/master/.github/workflows/build.yml
 name: Build tremoco
-on: [push]
+
+on: 
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
 
 permissions:
   contents: write

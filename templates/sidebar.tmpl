@@ -20,7 +20,7 @@
 <div class="playlists-container">
     {{ range .playlists }}
         <div onclick="replaceContent('playlist', '{{ .PlaylistId }}'); ">
-            <img src="{{ .PlaylistImage }}" alt="">
+            <img src="{{ .PlaylistImage.String }}" alt="">
             <p>{{ .PlaylistName }}</p>
         </div>
     {{ else }}

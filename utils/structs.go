@@ -1,5 +1,7 @@
 package utils
 
+import "database/sql"
+
 type User struct {
 	Username string
 	Password string
@@ -14,10 +16,10 @@ type PlaylistShow struct {
 }
 
 type Playlist struct {
-	PlaylistImage string      `json:"image"`
-	PlaylistId    int         `json:"id"`
-	PlaylistName  string      `json:"name"`
-	MusicList     []VideoMeta `json:"list"`
+	PlaylistImage sql.NullString `json:"image"`
+	PlaylistId    int            `json:"id"`
+	PlaylistName  string         `json:"name"`
+	MusicList     []VideoMeta    `json:"list"`
 }
 
 type PlayList_Music struct {

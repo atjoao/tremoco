@@ -135,7 +135,7 @@ function loadRecentlyPlayed() {
 
                     document.getElementById("recentlyPlayed").insertAdjacentHTML("beforeend", 
                         html
-                            .replace("%playlist:image%", element.info.image)
+                            .replace("%playlist:image%", element.info.image.String)
                             .replace("%playlist:name%", element.info.name)
                             .replace("%playlist:length%", element.info.list.length)
                             .replace("%playlist:id%", element.info.id)
@@ -336,7 +336,7 @@ function replaceContent(type, content){
                 e1.setAttribute('style', 'display: flex;align-items: center;gap: 20px;');
                 
                 const e2 = document.createElement("img");
-                e2.src = playlist.image == "" ? "assets/images/default_album.png" : playlist.image;
+                e2.src = playlist.image.String == "" ? "assets/images/default_album.png" : playlist.image.String;
                 e2.width = 128;
                 e2.height = 128;
                 e2.style.borderRadius = "10px";
