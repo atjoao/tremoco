@@ -11,6 +11,8 @@ import (
 
 func Sidebar(ctx *gin.Context) {
 	db := utils.StartConn()
+	defer db.Close()
+
 	var userId int = sessions.Default(ctx).Get("userId").(int)
 
 	const sql string = "SELECT id, name, image FROM playlists WHERE userId = $1"

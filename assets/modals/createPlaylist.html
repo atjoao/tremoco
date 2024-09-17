@@ -28,7 +28,9 @@
         document.getElementById("createPlaylistForm").addEventListener("submit", function (e) {
             e.preventDefault();
             executeForm(this);
-            getSidebar();
+            setTimeout(() => {
+                getSidebar();
+            }, 100);
         })
     </script>
 </body>

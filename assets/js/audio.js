@@ -1,5 +1,9 @@
 const playerToggle = document.getElementById("player-toggle")
 playerToggle.addEventListener("click", () => {
+    if (queue.currentSong == null){
+        return;
+    }
+
     if (audio.paused){
         audio.play()
     } else {

@@ -56,6 +56,8 @@ func FfprobeOutput(path string) (*utils.FFProbeOutputResponse, error) {
 
 func ProcessAudioFiles() (bool, error) {
 	db := utils.StartConn()
+	defer db.Close()
+
 	var err error
 
 	log.Println("Processing audio files")
@@ -108,6 +110,7 @@ func ProcessAudioFiles() (bool, error) {
 				log.Panic("Error processing folder > ", err)
 			} else {
 				tx.Commit()
+				log.Println("Folder processed successfully")
 			}
 		}
 	}
@@ -116,6 +119,7 @@ func ProcessAudioFiles() (bool, error) {
 }
 
 func ReadFolder(albumId int, folder string, tx *sql.Tx) (bool, error) {
+
 	folders, err := os.ReadDir(folder)
 	if err != nil {
 		return false, err
@@ -178,6 +182,7 @@ func ReadFolder(albumId int, folder string, tx *sql.Tx) (bool, error) {
 
 func RemoveMusicFromDb() {
 	db := utils.StartConn()
+	defer db.Close()
 
 	tx, err := db.Begin()
 	if err != nil {

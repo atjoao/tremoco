@@ -29,7 +29,14 @@ func engine() *gin.Engine {
 	templ := template.Must(template.New("").ParseFS(Embedded, "templates/*.tmpl"))
 	app.SetHTMLTemplate(templ)
 
-	store := cookie.NewStore([]byte(os.Getenv("SESSION_KEY")))
+	var secret string
+	if os.Getenv("KEEP_LOGINS") == "" || os.Getenv("KEEP_LOGINS") == "false" {
+		secret = utils.RandString(32)
+	} else {
+		secret = os.Getenv("SESSION_KEY")
+	}
+
+	store := cookie.NewStore([]byte(secret))
 	app.Use(sessions.Sessions("sessions", store))
 
 	// html render
@@ -125,45 +132,43 @@ func main() {
 			log.Println("Error creating config file > ", err)
 		}
 
-		_, _ = file.WriteString("SESSION_KEY=change_key\nINCLUDE_YOUTUBE=true")
+		_, _ = file.WriteString("SESSION_KEY=change_key\nINCLUDE_YOUTUBE=true\nKEEP_LOGINS=false\n")
 
 		defer file.Close()
 	}
 
-	var err error
-
-	err = godotenv.Load("config.txt")
+	err := godotenv.Load("config.txt")
 	if err != nil {
 		log.Println("Ignoring config file")
 	}
 
-	dbConn := utils.StartConn()
-	if dbConn != nil {
-		log.Println("Database established!")
-	}
+	func() {
+		dbConn := utils.StartConn()
+		defer dbConn.Close()
 
-	log.Println("Executing .sql files")
-	files, err := Embedded.ReadDir("database")
+		log.Println("Executing .sql files")
+		files, err := Embedded.ReadDir("database")
 
-	if err != nil {
-		log.Panicln("Error reading .sql files > ", err)
-	}
-
-	for _, file := range files {
-		sql, err := Embedded.ReadFile("database/" + file.Name())
 		if err != nil {
-			log.Panicln("Error reading", file.Name(), ".sql file > ", err)
+			log.Panicln("Error reading .sql files > ", err)
 		}
 
-		var sqlStatement []string = strings.Split(string(sql), ";")
-		for _, statement := range sqlStatement {
-			fmt.Println(statement)
-			_, err := dbConn.Exec(statement)
+		for _, file := range files {
+			sql, err := Embedded.ReadFile("database/" + file.Name())
 			if err != nil {
-				log.Panicln("Error on", file.Name(), "command > ", err)
+				log.Panicln("Error reading", file.Name(), ".sql file > ", err)
+			}
+
+			var sqlStatement []string = strings.Split(string(sql), ";")
+			for _, statement := range sqlStatement {
+				fmt.Println(statement)
+				_, err := dbConn.Exec(statement)
+				if err != nil {
+					log.Panicln("Error on", file.Name(), "command > ", err)
+				}
 			}
 		}
-	}
+	}()
 
 	functions.ProcessAudioFiles()
 	functions.RemoveMusicFromDb()

@@ -34,7 +34,7 @@
         fetch("/api/playlist/" + globalThis.currentPlaylist)
             .then((r) => r.json())
             .then((r) => {
-                document.getElementById("playlistImage").value = r.playlist.image;
+                document.getElementById("playlistImage").value = r.playlist.image.String;
                 document.getElementById("playlistName").value = r.playlist.name;
 
                 document.getElementById("editPlaylistForm").action = "/api/playlist/edit/" + globalThis.currentPlaylist;

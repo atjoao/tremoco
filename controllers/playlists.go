@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"database/sql"
 	"encoding/base64"
 	"fmt"
+	"log"
 	"os"
 	"regexp"
 	"strconv"
@@ -17,6 +19,7 @@ import (
 func CreatePlaylist(ctx *gin.Context) {
 	var err error
 	db := utils.StartConn()
+	defer db.Close()
 
 	var playlistName string = ctx.PostForm("name")
 
@@ -53,6 +56,8 @@ func CreatePlaylist(ctx *gin.Context) {
 
 func GetPlaylistsMusic(ctx *gin.Context) {
 	db := utils.StartConn()
+	defer db.Close()
+
 	var playlists []utils.PlayList_Music
 
 	var userId int = sessions.Default(ctx).Get("userId").(int)
@@ -108,10 +113,11 @@ func GetPlaylistsMusic(ctx *gin.Context) {
 
 func ChangePlaylist(ctx *gin.Context) {
 	db := utils.StartConn()
-	var userId int = sessions.Default(ctx).Get("userId").(int)
+	// Remove defer db.Close() as we're using a connection pool
 
-	var playlistId string = ctx.PostForm("playlistId")
-	var audioId string = ctx.PostForm("audioId")
+	userId := sessions.Default(ctx).Get("userId").(int)
+	playlistId := ctx.PostForm("playlistId")
+	audioId := ctx.PostForm("audioId")
 
 	if playlistId == "" || audioId == "" {
 		ctx.JSON(400, gin.H{
@@ -121,20 +127,26 @@ func ChangePlaylist(ctx *gin.Context) {
 		return
 	}
 
-	// check if playlist is from user
-	var sql string = "SELECT id FROM playlists WHERE userId = $1 AND id = $2"
-	rows, err := db.Query(sql, userId, playlistId)
+	tx, err := db.Begin()
 	if err != nil {
 		ctx.JSON(500, gin.H{
 			"status":  "SERVER_ERROR",
-			"message": "There was an error while fetching playlists",
+			"message": "Failed to start transaction: " + err.Error(),
 		})
 		return
 	}
+	defer tx.Rollback()
 
-	defer rows.Close()
-
-	if !rows.Next() {
+	var exists bool
+	err = tx.QueryRow("SELECT EXISTS(SELECT 1 FROM playlists WHERE userId = ? AND id = ?)", userId, playlistId).Scan(&exists)
+	if err != nil {
+		ctx.JSON(500, gin.H{
+			"status":  "SERVER_ERROR",
+			"message": "Error checking playlist ownership: " + err.Error(),
+		})
+		return
+	}
+	if !exists {
 		ctx.JSON(403, gin.H{
 			"status":  "FORBIDDEN",
 			"message": "Playlist does not belong to user",
@@ -142,71 +154,65 @@ func ChangePlaylist(ctx *gin.Context) {
 		return
 	}
 
-	sql = "SELECT music_id FROM playlist_music WHERE playlist_id = $1 AND music_id = $2"
-	chkrows, err := db.Query(sql, playlistId, audioId)
+	err = tx.QueryRow("SELECT EXISTS(SELECT 1 FROM playlist_music WHERE playlist_id = ? AND music_id = ?)", playlistId, audioId).Scan(&exists)
 	if err != nil {
 		ctx.JSON(500, gin.H{
 			"status":  "SERVER_ERROR",
-			"message": "There was an error while fetching playlists",
+			"message": "Error checking audio in playlist: " + err.Error(),
 		})
 		return
 	}
 
-	defer chkrows.Close()
-
-	tx, err := db.Begin()
-	if err != nil {
-		ctx.JSON(500, gin.H{
-			"status":  "SERVER_ERROR",
-			"message": "There was an error while executing this action",
-		})
-		return
-	}
-
-	if chkrows.Next() {
-		sql = "DELETE FROM playlist_music WHERE playlist_id = $1 AND music_id = $2"
-		_, err = tx.Exec(sql, playlistId, audioId)
-		if err != nil {
-			tx.Rollback()
-			fmt.Println("[erro! changeplaylist] ", err)
-			ctx.JSON(500, gin.H{
-				"status":  "SERVER_ERROR",
-				"message": "There was an error while removing music from playlist",
-			})
-			return
-		}
+	var result sql.Result
+	if exists {
+		result, err = tx.Exec("DELETE FROM playlist_music WHERE playlist_id = ? AND music_id = ?", playlistId, audioId)
 	} else {
-		sql = "INSERT INTO playlist_music (playlist_id, music_id) VALUES ($1, $2)"
-		_, err = tx.Exec(sql, playlistId, audioId)
-		if err != nil {
-			tx.Rollback()
-			fmt.Println("[erro! changeplaylist] ", err)
-			ctx.JSON(500, gin.H{
-				"status":  "SERVER_ERROR",
-				"message": "There was an error while adding music to playlist",
-			})
-			return
-		}
+		result, err = tx.Exec("INSERT INTO playlist_music (playlist_id, music_id) VALUES (?, ?)", playlistId, audioId)
+	}
+
+	if err != nil {
+		ctx.JSON(500, gin.H{
+			"status":  "SERVER_ERROR",
+			"message": "Error updating playlist: " + err.Error(),
+		})
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		ctx.JSON(500, gin.H{
+			"status":  "SERVER_ERROR",
+			"message": "Error checking affected rows: " + err.Error(),
+		})
+		return
+	}
+
+	if rowsAffected == 0 {
+		ctx.JSON(400, gin.H{
+			"status":  "NO_CHANGE",
+			"message": "No changes were made to the playlist",
+		})
+		return
 	}
 
 	err = tx.Commit()
 	if err != nil {
 		ctx.JSON(500, gin.H{
 			"status":  "SERVER_ERROR",
-			"message": "There was an error while executing this action",
+			"message": "Error committing transaction: " + err.Error(),
 		})
 		return
 	}
 
 	ctx.JSON(200, gin.H{
 		"status":  "OK",
-		"message": "Music added to playlist",
+		"message": "Playlist updated successfully",
 	})
-
 }
 
 func GetPlaylist(ctx *gin.Context) {
 	db := utils.StartConn()
+	defer db.Close()
 	var userId int = sessions.Default(ctx).Get("userId").(int)
 	var queryPlaylistId string = ctx.Param("playlistId")
 	idRegex := regexp.MustCompile(`local-[^\s]+`)
@@ -307,9 +313,8 @@ func GetPlaylist(ctx *gin.Context) {
 
 func DeletePlaylist(ctx *gin.Context) {
 	db := utils.StartConn()
-
-	var userId int = sessions.Default(ctx).Get("userId").(int)
-	var queryPlaylistId string = ctx.Param("playlistId")
+	userId := sessions.Default(ctx).Get("userId").(int)
+	queryPlaylistId := ctx.Param("playlistId")
 
 	if queryPlaylistId == "" {
 		ctx.JSON(400, gin.H{
@@ -319,19 +324,28 @@ func DeletePlaylist(ctx *gin.Context) {
 		return
 	}
 
-	var sql string = "SELECT id FROM playlists WHERE userId = $1 AND id = $2"
-	rows, err := db.Query(sql, userId, queryPlaylistId)
+	tx, err := db.Begin()
 	if err != nil {
+		log.Printf("[deleteplaylist/err/begin] %v", err)
 		ctx.JSON(500, gin.H{
 			"status":  "SERVER_ERROR",
-			"message": "There was an error while fetching playlists",
+			"message": "Failed to start transaction",
 		})
 		return
 	}
+	defer tx.Rollback()
 
-	defer rows.Close()
-
-	if !rows.Next() {
+	var exists bool
+	err = tx.QueryRow("SELECT EXISTS(SELECT 1 FROM playlists WHERE userId = ? AND id = ?)", userId, queryPlaylistId).Scan(&exists)
+	if err != nil {
+		log.Printf("[deleteplaylist/err/check] %v", err)
+		ctx.JSON(500, gin.H{
+			"status":  "SERVER_ERROR",
+			"message": "Error checking playlist ownership",
+		})
+		return
+	}
+	if !exists {
 		ctx.JSON(403, gin.H{
 			"status":  "FORBIDDEN",
 			"message": "Playlist does not belong to user",
@@ -339,42 +353,32 @@ func DeletePlaylist(ctx *gin.Context) {
 		return
 	}
 
-	tx, err := db.Begin()
+	_, err = tx.Exec("DELETE FROM playlist_music WHERE playlist_id = ?", queryPlaylistId)
 	if err != nil {
+		log.Printf("[deleteplaylist/err/delete_music] %v", err)
 		ctx.JSON(500, gin.H{
 			"status":  "SERVER_ERROR",
-			"message": "There was an error while deleting playlist",
+			"message": "Error deleting playlist music entries",
 		})
 		return
 	}
 
-	sql = "DELETE FROM playlist_music WHERE playlist_id = $1"
-	_, err = tx.Exec(sql, queryPlaylistId)
+	_, err = tx.Exec("DELETE FROM playlists WHERE id = ?", queryPlaylistId)
 	if err != nil {
-		tx.Rollback()
+		log.Printf("[deleteplaylist/err/delete_playlist] %v", err)
 		ctx.JSON(500, gin.H{
 			"status":  "SERVER_ERROR",
-			"message": "There was an error while deleting playlist",
-		})
-		return
-	}
-
-	sql = "DELETE FROM playlists WHERE id = $1"
-	_, err = tx.Exec(sql, queryPlaylistId)
-	if err != nil {
-		tx.Rollback()
-		ctx.JSON(500, gin.H{
-			"status":  "SERVER_ERROR",
-			"message": "There was an error while deleting playlist",
+			"message": "Error deleting playlist",
 		})
 		return
 	}
 
 	err = tx.Commit()
 	if err != nil {
+		log.Printf("[deleteplaylist/err/commit] %v", err)
 		ctx.JSON(500, gin.H{
 			"status":  "SERVER_ERROR",
-			"message": "There was an error while deleting playlist",
+			"message": "Error committing transaction",
 		})
 		return
 	}
@@ -383,11 +387,11 @@ func DeletePlaylist(ctx *gin.Context) {
 		"status":  "OK",
 		"message": "Playlist deleted",
 	})
-
 }
 
 func GetUserPlaylists(ctx *gin.Context) {
 	db := utils.StartConn()
+	defer db.Close()
 	var userId int = sessions.Default(ctx).Get("userId").(int)
 
 	const sql string = "SELECT id, name, image FROM playlists WHERE userId = $1"
@@ -430,8 +434,10 @@ func GetUserPlaylists(ctx *gin.Context) {
 func EditPlaylist(ctx *gin.Context) {
 	db := utils.StartConn()
 
-	var userId int = sessions.Default(ctx).Get("userId").(int)
-	var queryPlaylistId string = ctx.Param("playlistId")
+	userId := sessions.Default(ctx).Get("userId").(int)
+	queryPlaylistId := ctx.Param("playlistId")
+	playlistName := strings.TrimSpace(ctx.PostForm("playlistName"))
+	playlistImage := strings.TrimSpace(ctx.PostForm("playlistImage"))
 
 	if queryPlaylistId == "" {
 		ctx.JSON(400, gin.H{
@@ -441,19 +447,30 @@ func EditPlaylist(ctx *gin.Context) {
 		return
 	}
 
-	var sql string = "SELECT id FROM playlists WHERE userId = $1 AND id = $2"
-	rows, err := db.Query(sql, userId, queryPlaylistId)
+	// Start transaction
+	tx, err := db.Begin()
 	if err != nil {
+		log.Printf("[editplaylist/err] %v", err)
 		ctx.JSON(500, gin.H{
 			"status":  "SERVER_ERROR",
-			"message": "There was an error while fetching playlists",
+			"message": "Failed to start transaction",
 		})
 		return
 	}
+	defer tx.Rollback() // Will be a no-op if tx.Commit() is called
 
-	defer rows.Close()
-
-	if !rows.Next() {
+	// Check playlist ownership within the transaction
+	var exists bool
+	err = tx.QueryRow("SELECT EXISTS(SELECT 1 FROM playlists WHERE userId = ? AND id = ?)", userId, queryPlaylistId).Scan(&exists)
+	if err != nil {
+		log.Printf("[editplaylist/err] %v", err)
+		ctx.JSON(500, gin.H{
+			"status":  "SERVER_ERROR",
+			"message": "Error checking playlist ownership",
+		})
+		return
+	}
+	if !exists {
 		ctx.JSON(403, gin.H{
 			"status":  "FORBIDDEN",
 			"message": "Playlist does not belong to user",
@@ -461,59 +478,56 @@ func EditPlaylist(ctx *gin.Context) {
 		return
 	}
 
-	tx, err := db.Begin()
+	var updateSQL string
+	var args []interface{}
+
+	if playlistName == "" {
+		updateSQL = "UPDATE playlists SET image = ? WHERE id = ?"
+		args = []interface{}{sql.NullString{String: playlistImage, Valid: playlistImage != ""}, queryPlaylistId}
+	} else {
+		updateSQL = "UPDATE playlists SET name = ?, image = ? WHERE id = ?"
+		args = []interface{}{playlistName, sql.NullString{String: playlistImage, Valid: playlistImage != ""}, queryPlaylistId}
+	}
+
+	result, err := tx.Exec(updateSQL, args...)
 	if err != nil {
+		log.Printf("[editplaylist/err] %v", err)
 		ctx.JSON(500, gin.H{
 			"status":  "SERVER_ERROR",
-			"message": "There was an error while deleting playlist",
+			"message": "Error updating playlist",
 		})
 		return
 	}
 
-	var playlistName string = ctx.PostForm("playlistName")
-	var playlistImage string = ctx.PostForm("playlistImage")
-
-	if strings.Trim(playlistImage, " ") == "" {
-		// set to null on mysql
-		playlistImage = ""
-	}
-
-	if strings.Trim(playlistName, " ") == "" {
-		sql = "UPDATE playlists SET image = $1 WHERE id = $2"
-		_, err = tx.Exec(sql, playlistImage, queryPlaylistId)
-		if err != nil {
-			tx.Rollback()
-			ctx.JSON(500, gin.H{
-				"status":  "SERVER_ERROR",
-				"message": "There was an error while updating playlist",
-			})
-			return
-		}
-	} else {
-		sql = "UPDATE playlists SET name = $1, image = $2 WHERE id = $3"
-		_, err = tx.Exec(sql, playlistName, playlistImage, queryPlaylistId)
-		if err != nil {
-			tx.Rollback()
-			ctx.JSON(500, gin.H{
-				"status":  "SERVER_ERROR",
-				"message": "There was an error while updating playlist",
-			})
-			return
-		}
-	}
-
-	err = tx.Commit()
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
+		log.Printf("[editplaylist/err] %v", err)
 		ctx.JSON(500, gin.H{
 			"status":  "SERVER_ERROR",
-			"message": "There was an error while updating playlist",
+			"message": "Error checking affected rows",
+		})
+		return
+	}
+
+	if rowsAffected == 0 {
+		ctx.JSON(400, gin.H{
+			"status":  "NO_CHANGE",
+			"message": "No changes were made to the playlist",
+		})
+		return
+	}
+
+	if err = tx.Commit(); err != nil {
+		log.Printf("[editplaylist/err] %v", err)
+		ctx.JSON(500, gin.H{
+			"status":  "SERVER_ERROR",
+			"message": "Error committing transaction",
 		})
 		return
 	}
 
 	ctx.JSON(200, gin.H{
 		"status":  "OK",
-		"message": "Playlist updated",
+		"message": "Playlist updated successfully",
 	})
-
 }

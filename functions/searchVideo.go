@@ -13,6 +13,7 @@ import (
 
 func SearchVideo(name string) ([]utils.VideoSearch, error) {
 	db := utils.StartConn()
+
 	const ytUrl string = "https://music.youtube.com/youtubei/v1/search?prettyPrint=false"
 	allVideos := make([]utils.VideoSearch, 0)
 
