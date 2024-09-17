@@ -9,10 +9,10 @@ type User struct {
 }
 
 type PlaylistShow struct {
-	PlaylistImage string `json:"image"`
-	PlaylistId    int    `json:"id"`
-	PlaylistName  string `json:"name"`
-	PlaylistUrl   string `json:"url"`
+	PlaylistImage sql.NullString `json:"image"`
+	PlaylistId    int            `json:"id"`
+	PlaylistName  string         `json:"name"`
+	PlaylistUrl   string         `json:"url"`
 }
 
 type Playlist struct {

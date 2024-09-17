@@ -416,8 +416,8 @@ func GetUserPlaylists(ctx *gin.Context) {
 			continue
 		}
 
-		if IsDomainAllowed(playlist.PlaylistImage) {
-			playlist.PlaylistImage = "/api/proxy?url=" + base64.StdEncoding.EncodeToString([]byte(playlist.PlaylistImage))
+		if IsDomainAllowed(playlist.PlaylistImage.String) {
+			playlist.PlaylistImage.String = "/api/proxy?url=" + base64.StdEncoding.EncodeToString([]byte(playlist.PlaylistImage.String))
 		}
 
 		playlist.PlaylistUrl = "/api/playlist/" + strconv.Itoa(playlist.PlaylistId)
@@ -447,7 +447,6 @@ func EditPlaylist(ctx *gin.Context) {
 		return
 	}
 
-	// Start transaction
 	tx, err := db.Begin()
 	if err != nil {
 		log.Printf("[editplaylist/err] %v", err)
@@ -457,9 +456,8 @@ func EditPlaylist(ctx *gin.Context) {
 		})
 		return
 	}
-	defer tx.Rollback() // Will be a no-op if tx.Commit() is called
+	defer tx.Rollback()
 
-	// Check playlist ownership within the transaction
 	var exists bool
 	err = tx.QueryRow("SELECT EXISTS(SELECT 1 FROM playlists WHERE userId = ? AND id = ?)", userId, queryPlaylistId).Scan(&exists)
 	if err != nil {

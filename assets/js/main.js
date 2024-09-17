@@ -7,13 +7,36 @@ const playlistContainer = document.getElementById("playlist");
 const searchForm = document.getElementById("searchForm");
 
 const getSidebar = () => {
-    fetch("/html/sidebar")
+    const sidebarPlaylists = document.getElementById("sidebarPlaylistContainer");
+    sidebarPlaylists.innerHTML = "";
+
+    fetch("/api/playlists")
         .then(r => {
-            return r.text();
+            return r.json();
         })
-        .then(html => {
-            document.getElementById("sidebar").innerHTML = html;
-        })
+        .then((resp) => {
+
+            if (resp.playlists == null || resp.playlists.length == 0) {
+                sidebarPlaylists.innerHTML = `<p class="error">You don't have any playlists</p>`;
+            } else {
+                const html = `
+                    <div onclick="replaceContent('playlist', '%playlist:id%'); ">
+                        <img src="%playlist:image%" alt="">
+                        <p>%playlist:name%</p>
+                    </div>
+                `
+
+                resp.playlists.forEach((playlist) => {
+                    sidebarPlaylists.insertAdjacentHTML("beforeend", html
+                        .replace("%playlist:image%", playlist.image.String == "" ? "assets/images/default_album.png" : playlist.image.String)
+                        .replace("%playlist:name%", playlist.name)
+                        .replace("%playlist:id%", playlist.id)
+                    );
+                })
+            }
+        }).catch((e) => {
+            sidebarPlaylists.innerHTML = `<p class="error">Error loading playlists</p>`;
+        });
 }
 
 window.executeForm = (form) => {

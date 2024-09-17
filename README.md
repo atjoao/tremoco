@@ -42,8 +42,6 @@ Tremoco vai estar disponivel em se tiver correto > https://localhost:3000
 ├── GET /login (page)
 ├── GET /register (page)
 ├── GET /logout (redirect/clear)
-├── html
-│   └── GET /sidebar
 ├── api (protected)
 │   ├── GET /search (params ?q= )
 │   ├── GET /video (params ?id= )
