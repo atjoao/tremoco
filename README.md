@@ -7,15 +7,13 @@ Tremoco é um projeto de streaming de musicas(simples), não tem como objetivo d
 # Como instalar
 
 Ter
-- `FFProbe` em `%PATH%` ou parecido?? (ate arranjar maneira de ler exif data)
+- Requer `FFProbe` para obeter musicas locais
 
 Transfere o Tremoco [aqui](https://github.com/atjoao/tremoco/releases/)
 
-Remover .example do ficheiro `.env.example`
+É possivel configurar por trocar o ficheiro `config.txt` este é criado na primeira execução
 
-As variaveis existentes são as unicas no ficheiro `.env` e configurar-lo
-
-Abrir `tremoco.exe`
+Abrir `tremoco`
 
 ```
 .

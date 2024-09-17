@@ -123,10 +123,22 @@ func engine() *gin.Engine {
 }
 
 func main() {
+	if _, err := os.Stat("config.txt"); os.IsNotExist(err) {
+		file, err := os.Create("config.txt")
+		if err != nil {
+			log.Println("Error creating config file > ", err)
+		}
+
+		_, _ = file.WriteString("SESSION_KEY=change_key\nINCLUDE_YOUTUBE=true")
+
+		defer file.Close()
+	}
+
 	var err error
-	err = godotenv.Load()
+
+	err = godotenv.Load("config.txt")
 	if err != nil {
-		log.Println("Ignoring .env file")
+		log.Println("Ignoring config file")
 	}
 
 	dbConn := utils.StartConn()

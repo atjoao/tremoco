@@ -1,7 +1,5 @@
 testcode/
-audio/
-.env
-!audio/format.txt
 *.remove
 *.db
 *.exe
+*.txt
