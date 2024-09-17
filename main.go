@@ -4,7 +4,6 @@ import (
 	"embed"
 	"fmt"
 	"html/template"
-	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -22,12 +21,12 @@ import (
 //go:embed templates/*
 //go:embed database/*
 //go:embed assets/*
-var embedded embed.FS
+var Embedded embed.FS
 
 func engine() *gin.Engine {
 	app := gin.Default()
 
-	templ := template.Must(template.New("").ParseFS(embedded, "templates/*.tmpl"))
+	templ := template.Must(template.New("").ParseFS(Embedded, "templates/*.tmpl"))
 	app.SetHTMLTemplate(templ)
 
 	store := cookie.NewStore([]byte(os.Getenv("SESSION_KEY")))
@@ -69,10 +68,7 @@ func engine() *gin.Engine {
 
 	// public routes
 
-	assets, err := fs.Sub(embedded, "assets")
-	if err != nil {
-		panic(err)
-	}
+	assets := utils.CreateAssets(Embedded)
 
 	app.StaticFS("/assets", http.FS(assets))
 
@@ -147,14 +143,14 @@ func main() {
 	}
 
 	log.Println("Executing .sql files")
-	files, err := embedded.ReadDir("database")
+	files, err := Embedded.ReadDir("database")
 
 	if err != nil {
 		log.Panicln("Error reading .sql files > ", err)
 	}
 
 	for _, file := range files {
-		sql, err := embedded.ReadFile("database/" + file.Name())
+		sql, err := Embedded.ReadFile("database/" + file.Name())
 		if err != nil {
 			log.Panicln("Error reading", file.Name(), ".sql file > ", err)
 		}

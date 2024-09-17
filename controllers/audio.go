@@ -1,9 +1,12 @@
 package controllers
 
 import (
+	"net/http"
+	"os"
 	"path/filepath"
 	"regexp"
 	"tremoco/functions"
+	"tremoco/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,9 +29,13 @@ func GetAudioCover(ctx *gin.Context) {
 			})
 			return
 		} else if music.Cover != "" {
+			if _, err := os.Stat(music.Cover); os.IsNotExist(err) {
+				ctx.FileFromFS("images/no-cover.png", http.FS(utils.Assets))
+				return
+			}
 			ctx.File(music.Cover)
 		} else {
-			ctx.File("assets/images/no-cover.png")
+			ctx.FileFromFS("images/no-cover.png", http.FS(utils.Assets))
 		}
 	} else {
 		ctx.JSON(404, gin.H{
