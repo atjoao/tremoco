@@ -7,7 +7,7 @@ Tremoco é um projeto de streaming de musicas(simples), não tem como objetivo d
 # Como instalar
 
 Ter
-- Requer `FFProbe` para obeter musicas locais
+- Requer `FFProbe` para obter musicas locais
 
 Transfere o Tremoco [aqui](https://github.com/atjoao/tremoco/releases/)
 
