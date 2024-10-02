@@ -5,6 +5,7 @@ const searchContainer = document.getElementById("search");
 const initalContainer = document.getElementById("initial");
 const playlistContainer = document.getElementById("playlist");
 const searchForm = document.getElementById("searchForm");
+const queueContainer = document.getElementById("queue");
 
 const getSidebar = () => {
     const sidebarPlaylists = document.getElementById("sidebarPlaylistContainer");
@@ -517,6 +518,17 @@ function replaceContent(type, content){
             })
 
             break;
+        }
+        case "queue": {
+            document.querySelector("title").innerText = `Tremoco | Queue`
+
+            initalContainer.setAttribute("class", "hidden")
+            searchContainer.setAttribute("class", "hidden")
+            playlistContainer.setAttribute("class", "hidden")
+            queueContainer.setAttribute("class", "")
+
+            break;
+
         }
         default:{
             document.querySelector("title").innerText = `Tremoco | Home`

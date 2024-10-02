@@ -103,6 +103,38 @@ const queue = {
     alteradyPlayed: []
 }
 
+function updateQueueDisplay() {
+    const queueContainer = document.getElementById('queue-container');
+    const currentSongElement = document.getElementById('current-song');
+
+    if (queue.currentSong) {
+        currentSongElement.textContent = `Now Playing: ${queue.currentSong.title}`;
+    } else {
+        currentSongElement.textContent = 'No song currently playing';
+    }
+
+    queueContainer.innerHTML = '';
+
+    queue.currentQueue.forEach((song, index) => {
+        const songElement = document.createElement('div');
+        songElement.textContent = `${index + 1}. ${song}`;
+        if (index === queue.position) {
+            songElement.style.fontWeight = 'bold';
+        }
+        queueContainer.appendChild(songElement);
+    });
+}
+
+const queueProxy = new Proxy(queue, {
+    set(target, property, value) {
+        target[property] = value;
+        if (property === 'currentQueue' || property === 'currentSong' || property === 'position') {
+            updateQueueDisplay();
+        }
+        return true;
+    }
+});
+
 const audio = new Audio();
 
 const icons = {
@@ -160,6 +192,7 @@ audio.onplay = () => {
     playerAuthor.textContent = queue.currentSong.author;
 
     playerDuration.textContent = fmtMSS(queue.currentSong.duration)
+    updateQueueDisplay();
 
 }
 

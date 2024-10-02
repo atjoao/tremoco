@@ -37,7 +37,13 @@
             </div>
             <div id="search" class="hidden">
             </div>
-            <div id="playlist" class="hidden" ></div>
+            <div id="queue" class="hidden">
+                <h1 id="current-song"></h1>
+                <div id="queue-container"></div>
+            </div>
+            <div id="playlist" class="hidden">
+                
+            </div>
         </section>
 
     </div>
@@ -96,14 +102,5 @@
 
 <script src="/assets/js/main.js" defer></script>
 <script src="/assets/js/audio.js" defer></script>
-<script>
-    if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("/assets/js/sw.js").then(reg=>{
-            console.log("Service Worker Registered");
-        }).catch(err=>{
-            console.log("Service Worker Failed to Register", err);
-        });
-    }
-  </script>
   
 {{ template "eop" . }}

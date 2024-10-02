@@ -15,8 +15,8 @@ func VideoMeta(videoId string, includeVideo bool) (*utils.YT_VideoPlaybackRespon
 
 	inCache, getCacheValue := utils.StreamGetFromCache(videoId)
 	if !inCache {
-		const ytUrl string = "https://www.youtube.com/youtubei/v1/player?key=AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w"
-		var jsonStr = fmt.Sprintf(`{"videoId": "%s","context": {"client": {"clientName": "ANDROID","clientVersion": "17.36.4","androidSdkVersion": 31,"hl": "en","gl": "US","utcOffsetMinutes": 0}}}`, videoId)
+		const ytUrl string = "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+		var jsonStr = fmt.Sprintf(`{"contentCheckOk": true, "context": {"client": {"androidSdkVersion": 31,"clientName": "ANDROID","clientVersion": "17.36.4","gl": "US","hl": "en-GB","osName": "Android","osVersion": "12","platform": "MOBILE"},"user": {"lockedSafetyMode": false}},"racyCheckOk": true,"videoId": "%s"}`, videoId)
 
 		getVideoInfo, err := http.NewRequest("POST", ytUrl, strings.NewReader(jsonStr))
 		if err != nil {
