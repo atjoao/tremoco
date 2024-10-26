@@ -157,6 +157,10 @@ function loadRecentlyPlayed() {
                     </div>
                     `
 
+                    if (element.info.image.String == "" ){
+                        element.info.image.String = "assets/images/default_album.png"
+                    }
+
                     document.getElementById("recentlyPlayed").insertAdjacentHTML("beforeend", 
                         html
                             .replace("%playlist:image%", element.info.image.String)
