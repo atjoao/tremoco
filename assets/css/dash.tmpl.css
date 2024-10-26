@@ -90,13 +90,11 @@
     object-fit: cover;
 }
 
-/* Sidebar Button Icons */
 .pagecontent #sidebar > .buttons .button svg {
     width: 32px;
     height: 32px;
 }
 
-/* Main Content */
 .main-content {
     flex: 1;
     display: flex;
@@ -129,7 +127,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
-    justify-content: space-between;
 }
 
 .main-content section > #search .music {
@@ -550,4 +547,55 @@
     cursor: pointer;
     transition: background-color 0.3s ease-in-out;
     flex: 1;
+}
+
+#checkboxes > div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#checkboxes > div:hover {
+    background-color: var(--secondary);
+}
+
+#checkboxes input[type="checkbox"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background-color: var(--secondary);
+    border: 2px solid var(--accent);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+#checkboxes input[type="checkbox"]:checked {
+    background-color: var(--secondary);
+    border-color: var(--primary);
+}
+
+#checkboxes input[type="checkbox"]:checked::before {
+    content: "✔";
+    color: white;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+#checkboxes label {
+    font-size: 16px;
+    color: var(--text-primary);
+    cursor: pointer;
 }
